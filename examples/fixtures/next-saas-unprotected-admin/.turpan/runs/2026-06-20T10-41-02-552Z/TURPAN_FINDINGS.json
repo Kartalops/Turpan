@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-20T10-41-02-552Z",
+  "timestamp": "2026-06-20T10:41:02.602Z",
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-unprotected-admin",
+  "verdict": "GO",
+  "total": 1,
+  "breakdown": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 1
+  },
+  "findings": [
+    {
+      "id": "fnd-mqm88z8y0",
+      "title": "Dependencies not installed — install required before review",
+      "severity": "info",
+      "category": "build",
+      "explanation": "The node_modules directory is missing. Turpan cannot run build, test, lint, or typecheck without first installing dependencies. Run your package manager install command before re-running the review, or pass the --install flag to have Turpan install automatically (if configured).",
+      "evidence": [
+        {
+          "type": "file",
+          "label": "Missing node_modules",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-unprotected-admin/node_modules",
+          "excerpt": "Directory not found — node_modules is missing",
+          "timestamp": "2026-06-20T10:41:02.578Z"
+        }
+      ],
+      "suggestedFix": "Run: npm install",
+      "fixable": "manual",
+      "confidence": 95,
+      "tags": [
+        "install",
+        "setup",
+        "node_modules"
+      ]
+    }
+  ]
+}

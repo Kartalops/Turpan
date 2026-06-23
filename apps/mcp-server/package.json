@@ -1,0 +1,51 @@
+{
+  "name": "@turpan/mcp-server",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Turpan MCP Server — AI agent interface for code review, testing, and fixing",
+  "license": "MIT",
+  "bin": {
+    "turpan-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "code-review",
+    "static-analysis",
+    "ai-agent",
+    "model-context-protocol"
+  ],
+  "scripts": {
+    "build": "npx tsup",
+    "dev": "npx tsup --watch",
+    "test": "npx vitest run",
+    "lint": "npx tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@turpan/analyzers": "workspace:*",
+    "@turpan/core": "workspace:*",
+    "@turpan/fix-engine": "workspace:*",
+    "@turpan/report": "workspace:*",
+    "@turpan/shared": "workspace:*",
+    "@turpan/ui-runner": "workspace:*",
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "peerDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {
+      "id": "placeholder-1",
+      "type": "other",
+      "severity": "info",
+      "title": "Placeholder: Real analysis not yet implemented",
+      "description": "This is a placeholder report. Real code analysis will be implemented in future phases.",
+      "fixAvailable": false
+    }
+  ]
+}

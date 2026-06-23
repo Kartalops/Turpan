@@ -1,0 +1,272 @@
+# ============================================================
+# Example: Turpan PR Review GitHub Actions Workflow
+# ============================================================
+# Copy this file to .github/workflows/turpan-pr-review.yml
+# and configure the inputs to match your project.
+#
+# This workflow runs Turpan as a PR check — no secrets required
+# unless you enable `post-comment: true`.
+#
+# For reusable workflow version, use:
+#   uses: ./.github/actions/turpan-review
+# ============================================================
+
+name: Turpan PR Review
+
+on:
+  # Run on every PR open / update (push to PR branch)
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, master]
+  # Optional: allow manual trigger
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: 'Base ref (e.g. main)'
+        required: false
+        default: 'main'
+      head_ref:
+        description: 'Head ref (e.g. HEAD, or ${{ github.head_ref }})'
+        required: false
+        default: ''
+      review_mode:
+        description: 'Review depth: quick or deep'
+        required: false
+        default: 'quick'
+      fail_on:
+        description: 'Exit code policy: critical, high, never'
+        required: false
+        default: 'never'
+      post_comment:
+        description: 'Post PR comment'
+        required: false
+        default: 'false'
+
+env:
+  TURPAN_SKIP_UI: ${{ github.event.inputs.ui_enabled || '1' }}
+
+jobs:
+  turpan-review:
+    name: Turpan Code Review
+    runs-on: ubuntu-latest
+    # Fail fast on security issues — uncomment to enforce
+    # if: github.event_name == 'pull_request'
+    timeout-minutes: 30
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for --from/--to diff analysis
+
+      # ── Setup Node ────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # ── Install dependencies ──────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          # Skip UI to avoid browser requirements in CI
+          TURPAN_SKIP_UI: '1'
+
+      # ── Build Turpan ──────────────────────────────────────
+      - name: Build all packages
+        run: pnpm build
+
+      # ── Determine refs ────────────────────────────────────
+      - name: Determine base and head refs
+        id: refs
+        run: |
+          # For pull_request events, GITHUB_BASE_REF is the target branch
+          # and the current branch is the head ref
+          BASE_REF="${GITHUB_BASE_REF:-main}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            BASE_REF="${{ github.event.inputs.base_ref }}"
+            HEAD_REF="${{ github.event.inputs.head_ref || github.ref }}"
+          else
+            HEAD_REF="${{ github.event.pull_request.head.ref || github.ref }}"
+          fi
+          echo "BASE_REF=$BASE_REF" >> "$GITHUB_OUTPUT"
+          echo "HEAD_REF=$HEAD_REF" >> "$GITHUB_OUTPUT"
+          echo "PR_NUMBER=${{ github.event.pull_request.number || '0' }}" >> "$GITHUB_OUTPUT"
+
+      # ── Run Turpan Review ─────────────────────────────────
+      - name: Run Turpan PR Review
+        id: review
+        run: |
+          BASE="${{ steps.refs.outputs.BASE_REF }}"
+          HEAD="${{ steps.refs.outputs.HEAD_REF }}"
+          FAIL_ON="${{ github.event.inputs.fail_on || 'never' }}"
+          MODE="${{ github.event.inputs.review_mode || 'quick' }}"
+          POST_COMMENT="${{ github.event.inputs.post_comment || 'false' }}"
+
+          CMD="node apps/cli/dist/index.js review . --from $BASE --to $HEAD --fail-on $FAIL_ON"
+          if [[ "$MODE" == "deep" ]]; then
+            CMD="$CMD --deep"
+          fi
+
+          echo "::notice::Running: $CMD"
+          $CMD
+          REVIEW_EXIT=$?
+
+          # Store exit code for later
+          echo "REVIEW_EXIT=$REVIEW_EXIT" >> "$GITHUB_OUTPUT"
+
+          # Always exit 0 here — we handle failure in a separate step
+          # to allow artifact upload even on findings
+          echo "::notice::Turpan exit code: $REVIEW_EXIT"
+
+      # ── Determine run path ────────────────────────────────
+      - name: Locate run artifacts
+        id: artifacts
+        run: |
+          RUN_PATH=""
+          if [[ -d ".turpan/runs/latest" ]]; then
+            RUN_PATH="$(cd .turpan/runs/latest && pwd)"
+          elif [[ -d ".turpan/runs" ]]; then
+            RUN_PATH="$(ls -t .turpan/runs/ | head -1 | xargs -I{} echo ".turpan/runs/{}")"
+            RUN_PATH="$(cd "$RUN_PATH" && pwd)"
+          fi
+          echo "RUN_PATH=$RUN_PATH" >> "$GITHUB_OUTPUT"
+
+      # ── GitHub Step Summary ───────────────────────────────
+      - name: Write GitHub summary
+        if: steps.artifacts.outputs.RUN_PATH != ''
+        run: |
+          RUN_PATH="${{ steps.artifacts.outputs.RUN_PATH }}"
+          PR_NUMBER="${{ steps.refs.outputs.PR_NUMBER }}"
+
+          # Parse findings
+          VERDICT=$(grep -o '"verdict"[[:space:]]*:[[:space:]]*"[^"]*"' "$RUN_PATH/TURPAN_FINDINGS.json" 2>/dev/null | head -1 | sed 's/.*"\([^"]*\)"$/\1/' || echo "unknown")
+          SCORE=$(grep -o '"overall"[[:space:]]*:[[:space:]]*[0-9]*' "$RUN_PATH/TURPAN_SCORECARD.json" 2>/dev/null | head -1 | grep -o '[0-9]*' || echo "0")
+          CRITICAL=$(grep -o '"severity"[[:space:]]*:[[:space:]]*"critical"' "$RUN_PATH/TURPAN_FINDINGS.json" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+          HIGH=$(grep -o '"severity"[[:space:]]*:[[:space:]]*"high"' "$RUN_PATH/TURPAN_FINDINGS.json" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+
+          {
+            echo '## 🐪 Turpan PR Review'
+            echo ''
+            echo "| | |"
+            echo "|-|-:|"
+            echo "| **Verdict** | $VERDICT |"
+            echo "| **Score** | $SCORE/100 |"
+            echo "| **Critical** | $CRITICAL |"
+            echo "| **High** | $HIGH |"
+            echo ''
+            echo '---'
+            echo ''
+            echo '### 📊 Artifacts'
+            echo ''
+            echo '| Artifact | Description |'
+            echo '|---|---|'
+            echo '| `TURPAN_ANALYSIS.md` | Full analysis report |'
+            echo '| `TURPAN_PR_COMMENT.md` | GitHub PR comment draft |'
+            echo '| `TURPAN_DIFF_FINDINGS.json` | CI-friendly JSON findings |'
+            echo '| `TURPAN_FINDINGS.json` | All findings with details |'
+            echo '| `TURPAN_SCORECARD.json` | Scorecard with category scores |'
+            echo ''
+            echo '---'
+            echo "*🤖 Generated by [Turpan](https://github.com/turpan/turpan)*"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── Upload artifacts ──────────────────────────────────
+      - name: Upload review artifacts
+        if: steps.artifacts.outputs.RUN_PATH != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: turpan-review-${{ github.run_id }}
+          path: |
+            ${{ steps.artifacts.outputs.RUN_PATH }}/TURPAN_ANALYSIS.md
+            ${{ steps.artifacts.outputs.RUN_PATH }}/TURPAN_PR_COMMENT.md
+            ${{ steps.artifacts.outputs.RUN_PATH }}/TURPAN_DIFF_FINDINGS.json
+            ${{ steps.artifacts.outputs.RUN_PATH }}/TURPAN_FINDINGS.json
+            ${{ steps.artifacts.outputs.RUN_PATH }}/TURPAN_SCORECARD.json
+            ${{ steps.artifacts.outputs.RUN_PATH }}/TURPAN_RUN_SUMMARY.json
+          retention-days: 14
+          if-no-files-found: warn
+
+      # ── Post PR Comment (optional) ────────────────────────
+      - name: Post PR Comment
+        if: |
+          github.event.inputs.post_comment == 'true' ||
+          (github.event_name == 'pull_request' && github.event.inputs.post_comment != 'false')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_PATH: ${{ steps.artifacts.outputs.RUN_PATH }}
+          PR_NUMBER: ${{ steps.refs.outputs.PR_NUMBER }}
+          BASE_REF: ${{ steps.refs.outputs.BASE_REF }}
+          HEAD_REF: ${{ steps.refs.outputs.HEAD_REF }}
+        run: |
+          if [[ -z "$RUN_PATH" || ! -f "$RUN_PATH/TURPAN_PR_COMMENT.md" ]]; then
+            echo "::notice::No PR comment file found — skipping"
+            exit 0
+          fi
+
+          node apps/cli/dist/index.js scripts post-pr-comment \
+            --run-path "$RUN_PATH" \
+            --pr-number "$PR_NUMBER" \
+            --update=true \
+            2>&1 || echo "::warning::PR comment posting failed (non-fatal)"
+
+      # ── Enforce exit code policy ──────────────────────────
+      - name: Check exit code policy
+        if: |
+          github.event.inputs.fail_on != 'never' &&
+          github.event.inputs.fail_on != ''
+        run: |
+          FAIL_ON="${{ github.event.inputs.fail_on }}"
+          REVIEW_EXIT=${{ steps.review.outputs.REVIEW_EXIT || '0' }}
+
+          # Re-parse counts for policy check
+          RUN_PATH="${{ steps.artifacts.outputs.RUN_PATH }}"
+          if [[ -n "$RUN_PATH" && -f "$RUN_PATH/TURPAN_FINDINGS.json" ]]; then
+            CRITICAL=$(grep -o '"severity"[[:space:]]*:[[:space:]]*"critical"' "$RUN_PATH/TURPAN_FINDINGS.json" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+            HIGH=$(grep -o '"severity"[[:space:]]*:[[:space:]]*"high"' "$RUN_PATH/TURPAN_FINDINGS.json" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+
+            SHOULD_FAIL=false
+            if [[ "$FAIL_ON" == "critical" && "$CRITICAL" -gt 0 ]]; then
+              SHOULD_FAIL=true
+              echo "::error::Exit policy --fail-on $FAIL_ON triggered: $CRITICAL critical findings"
+            elif [[ "$FAIL_ON" == "high" && ("$CRITICAL" -gt 0 || "$HIGH" -gt 0) ]]; then
+              SHOULD_FAIL=true
+              echo "::error::Exit policy --fail-on $FAIL_ON triggered: $CRITICAL critical, $HIGH high findings"
+            fi
+
+            if [[ "$SHOULD_FAIL" == "true" ]]; then
+              exit 1
+            fi
+          fi
+          echo "::notice::Exit policy check passed"
+
+# ── Optional: Turpan Deep Scan (scheduled or on demand) ──────────────────────
+# Uncomment this job to run a deeper scan on main branch merges
+#
+# jobs:
+#   turpan-deep:
+#     name: Turpan Deep Review
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 60
+#     if: github.event_name == 'workflow_dispatch'
+#
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: '20'
+#           cache: 'pnpm'
+#       - run: pnpm install --frozen-lockfile
+#       - run: pnpm build
+#       - name: Run deep review
+#         run: |
+#           node apps/cli/dist/index.js review . --deep --fail-on critical
+#       - name: Upload artifacts
+#         if: always()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: turpan-deep-review-${{ github.run_id }}
+#           path: .turpan/runs/latest/
+#           retention-days: 30

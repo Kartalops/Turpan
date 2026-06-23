@@ -1,0 +1,1 @@
+{"version":3,"file":"UnwiredFeatureAnalyzer.d.ts","sourceRoot":"","sources":["../../src/agent-output/UnwiredFeatureAnalyzer.ts"],"names":[],"mappings":"AAAA;;;;;;;;GAQG;AAIH,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,YAAY,CAAC;AAEnD,MAAM,WAAW,qBAAqB;IACpC,WAAW,EAAE,MAAM,CAAC;IACpB,gBAAgB,EAAE,MAAM,EAAE,CAAC;CAC5B;AAED;;GAEG;AACH,wBAAgB,sBAAsB,CAAC,IAAI,EAAE,qBAAqB,GAAG,gBAAgB,EAAE,CAkGtF"}

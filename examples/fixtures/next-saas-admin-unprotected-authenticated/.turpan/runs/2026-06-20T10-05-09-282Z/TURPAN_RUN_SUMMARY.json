@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-20T10-05-09-282Z",
+  "runPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-unprotected-admin/.turpan/runs/2026-06-20T10-05-09-282Z",
+  "timestamp": "2026-06-20T10:05:09.324Z",
+  "duration": 0,
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-unprotected-admin",
+  "verdict": "CONDITIONAL_GO",
+  "overallScore": 97,
+  "findings": {
+    "critical": 0,
+    "high": 1,
+    "medium": 0,
+    "low": 0,
+    "info": 0,
+    "total": 1
+  },
+  "scorecard": {
+    "overall": 97,
+    "categories": {
+      "correctness": 97,
+      "security": 100,
+      "performance": 100,
+      "maintainability": 100,
+      "codeCoverage": 100
+    },
+    "findingsCount": 1,
+    "criticalIssues": 0,
+    "project_readiness": 85
+  },
+  "fingerprint": {},
+  "hasFixResult": false,
+  "hasUiReview": false,
+  "hasSecurity": false,
+  "hasAgentAudit": false,
+  "nextActions": [
+    {
+      "priority": "high",
+      "action": "Address high-severity findings",
+      "reason": "1 high severity finding detected"
+    }
+  ]
+}

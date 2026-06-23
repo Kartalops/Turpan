@@ -1,0 +1,13 @@
+{
+  "fixture": "node-cli-broken-help",
+  "description": "CLI exits with code 1 on --help instead of 0 — breaks scripts and CI pipelines",
+  "tags": ["runtime", "cli", "exit-code", "help"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "mustDetect": ["--help", "exit", "code", "CLI", "non-zero", "pipeline"],
+    "categories": {
+      "runtime": { "min": 1 }
+    }
+  }
+}

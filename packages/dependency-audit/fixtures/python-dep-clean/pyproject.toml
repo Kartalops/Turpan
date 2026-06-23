@@ -1,0 +1,6 @@
+[project]
+name = "python-dep-clean"
+version = "1.0.0"
+
+[project.dependencies]
+pip = "==21.0.0"

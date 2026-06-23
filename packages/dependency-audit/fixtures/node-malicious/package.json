@@ -1,0 +1,8 @@
+{
+  "name": "node-malicious",
+  "version": "1.0.0",
+  "dependencies": {
+    "event-stream": "3.3.4"
+  },
+  "devDependencies": {}
+}

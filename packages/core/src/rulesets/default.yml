@@ -1,0 +1,91 @@
+# Default Ruleset — applies to all projects
+# This ruleset is always active unless explicitly overridden.
+
+rules:
+  # ── General ────────────────────────────────────────────────────────────────
+  no-console-log:
+    severity: medium
+    description: "Avoid console.log in production code — use a structured logger"
+    patterns:
+      - "console\\.log\\("
+    languages: [typescript, javascript]
+
+  no-debugger:
+    severity: high
+    description: "Remove debugger statements before shipping"
+    patterns:
+      - "debugger;"
+    languages: [typescript, javascript]
+
+  no-eval:
+    severity: critical
+    description: "eval() is a security risk — never use it"
+    patterns:
+      - "eval\\("
+    languages: [javascript, typescript]
+
+  no-implied-globals:
+    severity: low
+    description: "Avoid implied globals — declare all variables"
+    patterns:
+      - "^\\s*[a-z][a-zA-Z0-9_]*\\s*=\\s*[^=]"
+    languages: [javascript]
+
+  # ── TypeScript ─────────────────────────────────────────────────────────────
+  no-any:
+    severity: medium
+    description: "Avoid 'any' type — use explicit types or unknown"
+    patterns:
+      - ":\\s*any\\b"
+    languages: [typescript]
+
+  no-explicit-any-return:
+    severity: low
+    description: "Avoid explicit return type 'any'"
+    patterns:
+      - "->\\s*any\\b"
+    languages: [typescript]
+
+  # ── Imports ────────────────────────────────────────────────────────────────
+  no-relative-imports:
+    severity: low
+    description: "Prefer absolute imports over deep relative paths (../../..)"
+    patterns:
+      - "\\.\\./\\.\\./"
+    languages: [typescript, javascript]
+
+  # ── Async ─────────────────────────────────────────────────────────────────
+  await-in-loop:
+    severity: medium
+    description: "Avoid awaiting inside loops — collect promises and Promise.all() instead"
+    patterns:
+      - "for\\s*\\([^)]*\\)\\s*\\{[^}]*await\\s+"
+    languages: [typescript, javascript]
+
+  # ── React / UI ─────────────────────────────────────────────────────────────
+  no-unused-css:
+    severity: low
+    description: "CSS classes defined but not referenced in JSX"
+    languages: [typescript, javascript]
+
+  # ── Python ────────────────────────────────────────────────────────────────
+  python-no-bare-except:
+    severity: medium
+    description: "Use 'except Exception:' instead of bare 'except:'"
+    patterns:
+      - "except\\s*:"
+    languages: [python]
+
+  python-no-print:
+    severity: low
+    description: "Use 'logging' module instead of print()"
+    patterns:
+      - "^\\s*print\\s*\\("
+    languages: [python]
+
+# Severity thresholds for auto-fail on CI
+severityThresholds:
+  critical: 0   # Any critical finding fails the build
+  high: 3       # 3+ high findings fail
+  medium: 10     # 10+ medium findings fail
+  low: 50       # 50+ low findings fail

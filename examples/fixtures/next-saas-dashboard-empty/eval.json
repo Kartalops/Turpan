@@ -1,0 +1,10 @@
+{
+  "fixture": "next-saas-dashboard-empty",
+  "description": "Dashboard with no meaningful content or widgets",
+  "tags": ["dashboard", "empty-state", "ui"],
+  "expected": {
+    "mode": "soft",
+    "verdict": ["WARN"],
+    "criticalFindings": { "max": 0 }
+  }
+}

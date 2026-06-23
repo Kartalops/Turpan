@@ -1,0 +1,21 @@
+{
+  "format": "turpan-sbom",
+  "version": "1.0",
+  "projectName": "node-dep-vulnerable-direct",
+  "projectVersion": "1.0.0",
+  "projectEcosystem": "npm",
+  "components": [
+    {
+      "name": "lodash",
+      "version": "4.17.18",
+      "ecosystem": "npm",
+      "type": "library",
+      "dependencyType": "prod",
+      "source": "direct",
+      "sourceFile": "/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/dependency-audit/fixtures/node-dep-vulnerable-direct/package.json",
+      "vulnerabilities": 1
+    }
+  ],
+  "generatedAt": "2026-06-22T07:02:14.279Z",
+  "generator": "turpan-dependency-audit"
+}

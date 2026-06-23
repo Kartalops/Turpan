@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2022"],
+    "target": "ES2022"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/fix-engine" },
+    { "path": "../../packages/analyzers" },
+    { "path": "../../packages/report" },
+    { "path": "../../packages/ui-runner" }
+  ]
+}

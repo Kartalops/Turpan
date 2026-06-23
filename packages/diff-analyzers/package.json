@@ -1,0 +1,37 @@
+{
+  "name": "@turpan/diff-analyzers",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Diff-scoped security analyzers for Turpan PR review",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": ["turpan", "security", "diff", "code-review", "static-analysis"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@turpan/git-diff": "workspace:*",
+    "@turpan/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}

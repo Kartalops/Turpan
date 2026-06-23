@@ -1,0 +1,13 @@
+{
+  "fixture": "next-saas-noop-tests",
+  "description": "Test files exist but only assert expect(true).toBe(true) with no real behavior",
+  "tags": ["testing", "noop", "shallow"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "mustDetect": ["test", "shallow", "no-op", "placeholder", "assertion", "mock"],
+    "categories": {
+      "test": { "min": 1 }
+    }
+  }
+}

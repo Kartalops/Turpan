@@ -1,0 +1,166 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-20T10-50-04-491Z",
+  "timestamp": "2026-06-20T10:50:04.544Z",
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool",
+  "verdict": "NO_GO",
+  "total": 6,
+  "breakdown": {
+    "critical": 2,
+    "high": 0,
+    "medium": 1,
+    "low": 2,
+    "info": 1
+  },
+  "findings": [
+    {
+      "id": "fnd-mqm8kleq0",
+      "title": "Dependencies not installed — install required before review",
+      "severity": "info",
+      "category": "build",
+      "explanation": "The node_modules directory is missing. Turpan cannot run build, test, lint, or typecheck without first installing dependencies. Run your package manager install command before re-running the review, or pass the --install flag to have Turpan install automatically (if configured).",
+      "evidence": [
+        {
+          "type": "file",
+          "label": "Missing node_modules",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool/node_modules",
+          "excerpt": "Directory not found — node_modules is missing",
+          "timestamp": "2026-06-20T10:50:04.514Z"
+        }
+      ],
+      "suggestedFix": "Run: npm install",
+      "fixable": "manual",
+      "confidence": 95,
+      "tags": [
+        "install",
+        "setup",
+        "node_modules"
+      ]
+    },
+    {
+      "id": "fnd-mqm8kleq1",
+      "title": "Missing test script in package.json",
+      "severity": "medium",
+      "category": "test",
+      "explanation": "No `test` script was detected in package.json. The test stage will be skipped without a test command.",
+      "evidence": [
+        {
+          "type": "file",
+          "label": "package.json",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool/package.json",
+          "excerpt": "{\n  \"build\": \"tsc\",\n  \"start\": \"node dist/index.js\"\n}",
+          "timestamp": "2026-06-20T10:50:04.514Z"
+        }
+      ],
+      "suggestedFix": "Add a \"test\" script to package.json, e.g. \"test\": \"vitest\" or \"test\": \"jest\"",
+      "fixable": "manual",
+      "confidence": 80,
+      "tags": [
+        "scripts",
+        "missing-test"
+      ]
+    },
+    {
+      "id": "mcp-arbitrary-shell-src-server-ts",
+      "title": "MCP server allows arbitrary shell execution: child_process with shell in src/server.ts",
+      "severity": "critical",
+      "category": "security",
+      "explanation": "The MCP server in \"src/server.ts\" executes shell commands. MCP servers with shell access can be exploited to run arbitrary commands on the host if any tool input is user-controlled. This is a CRITICAL security risk.",
+      "file": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool/src/server.ts",
+      "evidence": [
+        {
+          "type": "text",
+          "label": "pattern",
+          "excerpt": "child_process with shell",
+          "timestamp": "2026-06-20T10:50:04.518Z"
+        }
+      ],
+      "suggestedFix": "Remove shell execution from MCP tools. If shell access is required, validate input against an explicit allowlist and use parameterized commands (no shell=True). Consider if a native API call can replace the shell command.",
+      "fixable": "manual",
+      "confidence": 90,
+      "tags": [
+        "mcp",
+        "security",
+        "shell",
+        "arbitrary-execution",
+        "critical"
+      ]
+    },
+    {
+      "id": "mcp-broad-schema-src-server-ts",
+      "title": "MCP tool has overly broad schema: unconstrained object schema in src/server.ts",
+      "severity": "low",
+      "category": "maintainability",
+      "explanation": "The MCP tool in \"src/server.ts\" has an input schema with unconstrained object schema. This provides no guidance to LLM clients about valid inputs, leading to malformed requests and runtime errors.",
+      "file": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool/src/server.ts",
+      "evidence": [
+        {
+          "type": "text",
+          "label": "pattern",
+          "excerpt": "unconstrained object schema",
+          "timestamp": "2026-06-20T10:50:04.518Z"
+        }
+      ],
+      "suggestedFix": "Define precise JSON Schema types for all tool inputs: specify required fields, property types (string/number/boolean), string formats (e.g., format: 'uri'), and enum constraints where applicable.",
+      "fixable": "manual",
+      "confidence": 70,
+      "tags": [
+        "mcp",
+        "schema",
+        "validation",
+        "maintainability"
+      ]
+    },
+    {
+      "id": "mcp-arbitrary-shell-src-server-ts",
+      "title": "MCP server allows arbitrary shell execution: child_process with shell in src/server.ts",
+      "severity": "critical",
+      "category": "security",
+      "explanation": "The MCP server in \"src/server.ts\" executes shell commands. MCP servers with shell access can be exploited to run arbitrary commands on the host if any tool input is user-controlled. This is a CRITICAL security risk.",
+      "file": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool/src/server.ts",
+      "evidence": [
+        {
+          "type": "text",
+          "label": "pattern",
+          "excerpt": "child_process with shell",
+          "timestamp": "2026-06-20T10:50:04.525Z"
+        }
+      ],
+      "suggestedFix": "Remove shell execution from MCP tools. If shell access is required, validate input against an explicit allowlist and use parameterized commands (no shell=True). Consider if a native API call can replace the shell command.",
+      "fixable": "manual",
+      "confidence": 90,
+      "tags": [
+        "mcp",
+        "security",
+        "shell",
+        "arbitrary-execution",
+        "critical"
+      ]
+    },
+    {
+      "id": "mcp-broad-schema-src-server-ts",
+      "title": "MCP tool has overly broad schema: unconstrained object schema in src/server.ts",
+      "severity": "low",
+      "category": "maintainability",
+      "explanation": "The MCP tool in \"src/server.ts\" has an input schema with unconstrained object schema. This provides no guidance to LLM clients about valid inputs, leading to malformed requests and runtime errors.",
+      "file": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/mcp-unsafe-tool/src/server.ts",
+      "evidence": [
+        {
+          "type": "text",
+          "label": "pattern",
+          "excerpt": "unconstrained object schema",
+          "timestamp": "2026-06-20T10:50:04.525Z"
+        }
+      ],
+      "suggestedFix": "Define precise JSON Schema types for all tool inputs: specify required fields, property types (string/number/boolean), string formats (e.g., format: 'uri'), and enum constraints where applicable.",
+      "fixable": "manual",
+      "confidence": 70,
+      "tags": [
+        "mcp",
+        "schema",
+        "validation",
+        "maintainability"
+      ]
+    }
+  ]
+}

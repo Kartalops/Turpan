@@ -1,0 +1,1036 @@
+{
+  "timestamp": "2026-06-22T14:17:54.550Z",
+  "version": "2.0",
+  "total": 22,
+  "passed": 1,
+  "warned": 6,
+  "failed": 15,
+  "totalDurationMs": 3223,
+  "hardFailMode": false,
+  "results": [
+    {
+      "fixture": "fastapi-auth-bypass",
+      "description": "FastAPI app has verify_api_key auth logic but no route applies it — sensitive data is open",
+      "tags": [
+        "security",
+        "auth-bypass",
+        "critical"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 145,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO]",
+        "criticalFindings",
+        "categories.security",
+        "mustIncludeFile:main.py",
+        "mustDetect:\"auth\"",
+        "mustDetect:\"unprotected\"",
+        "mustDetect:\"sensitive\"",
+        "mustDetect:\"verify_api_key\"",
+        "mustDetect:\"missing\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO, got GO",
+        "criticalFindings: expected at least 1, got 0",
+        "category security: expected at least 2, got 0",
+        "mustIncludeFile: no finding references \"main.py\"",
+        "mustDetect: no finding title contained 'auth'",
+        "mustDetect: no finding title contained 'unprotected'",
+        "mustDetect: no finding title contained 'sensitive'",
+        "mustDetect: no finding title contained 'verify_api_key'",
+        "mustDetect: no finding title contained 'missing'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "fastapi-open-cors",
+      "description": "FastAPI app with permissive CORS and open PII endpoint",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "WARN",
+      "passed": true,
+      "durationMs": 147,
+      "actual": {
+        "verdict": "CONDITIONAL_GO",
+        "findingsCount": 5,
+        "criticalFindings": 0,
+        "highFindings": 2,
+        "mediumFindings": 2,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1,
+          "runtime": 2,
+          "security": 2
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review",
+          "fastapi app import failed: main.py",
+          "no health/readiness route found",
+          "cors configured with wildcard allow_origins",
+          "no rate limiting detected"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO, NO_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings",
+        "mustDetect:\"cors\"",
+        "mustDetect:\"allow_origins\""
+      ],
+      "missingAssertions": [],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'PII'",
+        "mustDetect: no finding title contained 'users'",
+        "mustDetect: no finding title contained 'email'",
+        "mustDetect: no finding title contained 'auth'"
+      ],
+      "errors": [],
+      "warnings": [
+        "mustDetect: no finding title contained 'PII'",
+        "mustDetect: no finding title contained 'users'",
+        "mustDetect: no finding title contained 'email'",
+        "mustDetect: no finding title contained 'auth'"
+      ]
+    },
+    {
+      "fixture": "mcp-unsafe-tool",
+      "description": "MCP server with a tool that executes arbitrary shell commands",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "WARN",
+      "passed": true,
+      "durationMs": 151,
+      "actual": {
+        "verdict": "NO_GO",
+        "findingsCount": 4,
+        "criticalFindings": 1,
+        "highFindings": 0,
+        "mediumFindings": 1,
+        "lowFindings": 1,
+        "findingsByCategory": {
+          "build": 1,
+          "test": 1,
+          "security": 1,
+          "maintainability": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review",
+          "missing test script in package.json",
+          "mcp server allows arbitrary shell execution: child_process with shell in src/server.ts",
+          "mcp tool has overly broad schema: unconstrained object schema in src/server.ts"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings",
+        "mustDetect:\"exec\"",
+        "mustDetect:\"arbitrary\"",
+        "mustDetect:\"shell\""
+      ],
+      "missingAssertions": [],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'command'"
+      ],
+      "errors": [],
+      "warnings": [
+        "mustDetect: no finding title contained 'command'"
+      ]
+    },
+    {
+      "fixture": "mcp-wide-filesystem-access",
+      "description": "MCP tool accepts arbitrary filesystem paths with no workspace boundary validation",
+      "tags": [
+        "mcp",
+        "security",
+        "critical",
+        "arbitrary-path"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 146,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO]",
+        "criticalFindings",
+        "categories.security",
+        "mustIncludeFile:server.ts",
+        "mustDetect:\"filesystem\"",
+        "mustDetect:\"arbitrary\"",
+        "mustDetect:\"path\"",
+        "mustDetect:\"workspace\"",
+        "mustDetect:\"bounds\"",
+        "mustDetect:\"readFileSync\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO, got GO",
+        "criticalFindings: expected at least 1, got 0",
+        "category security: expected at least 1, got 0",
+        "mustIncludeFile: no finding references \"server.ts\"",
+        "mustDetect: no finding title contained 'filesystem'",
+        "mustDetect: no finding title contained 'arbitrary'",
+        "mustDetect: no finding title contained 'path'",
+        "mustDetect: no finding title contained 'workspace'",
+        "mustDetect: no finding title contained 'bounds'",
+        "mustDetect: no finding title contained 'readFileSync'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-admin-unprotected-authenticated",
+      "description": "Admin route accessible without authentication — test verifies unauthenticated access check",
+      "tags": [
+        "auth",
+        "admin",
+        "saas",
+        "ui",
+        "unprotected"
+      ],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 144,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 1,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review"
+        ]
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [WARN, CONDITIONAL_GO, NO_GO]",
+        "highFindings"
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected WARN or CONDITIONAL_GO or NO_GO, got GO",
+        "highFindings: expected at least 1, got 0"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-auth-broken-login",
+      "description": "Login form accepts any credentials without error feedback",
+      "tags": [
+        "auth",
+        "broken-login",
+        "ui"
+      ],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 138,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [WARN, CONDITIONAL_GO]"
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected WARN or CONDITIONAL_GO, got GO"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-auth-good",
+      "description": "Clean positive control SaaS app with working auth",
+      "tags": [
+        "auth",
+        "saas",
+        "positive-control"
+      ],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 142,
+      "actual": {
+        "verdict": "NO_GO",
+        "findingsCount": 5,
+        "criticalFindings": 1,
+        "highFindings": 1,
+        "mediumFindings": 2,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 2,
+          "test": 1,
+          "typecheck": 1,
+          "lint": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review",
+          "missing test script in package.json",
+          "build script 'build' failed with exit code 127",
+          "typescript type errors found (exit code 2)",
+          "lint script 'lint' found issues (exit code 127)"
+        ]
+      },
+      "matchedAssertions": [
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO]",
+        "criticalFindings",
+        "highFindings"
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected GO or CONDITIONAL_GO, got NO_GO",
+        "criticalFindings: expected at most 0, got 1",
+        "highFindings: expected at most 0, got 1"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-billing-fake-success",
+      "description": "Checkout endpoint returns fake subscription IDs",
+      "tags": [
+        "billing",
+        "fake-checkout",
+        "security"
+      ],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 144,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [CONDITIONAL_GO, NO_GO]",
+        "highFindings"
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected CONDITIONAL_GO or NO_GO, got GO",
+        "highFindings: expected at least 1, got 0"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-broken-build",
+      "description": "Next.js SaaS with intentional type/build errors",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "WARN",
+      "passed": true,
+      "durationMs": 154,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 1,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO, NO_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings",
+        "mustDetect:\"Dependencies\""
+      ],
+      "missingAssertions": [],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'node_modules'",
+        "mustDetect: no finding title contained 'build'"
+      ],
+      "errors": [],
+      "warnings": [
+        "mustDetect: no finding title contained 'node_modules'",
+        "mustDetect: no finding title contained 'build'"
+      ]
+    },
+    {
+      "fixture": "next-saas-button-noop",
+      "description": "Pricing button has alert-only handler with unconnected Stripe — placeholder UI behavior",
+      "tags": [
+        "ui",
+        "noop",
+        "billing",
+        "button"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 148,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "categories.maintainability",
+        "mustDetect:\"button\"",
+        "mustDetect:\"alert\"",
+        "mustDetect:\"handler\"",
+        "mustDetect:\"billing\"",
+        "mustDetect:\"TODO\"",
+        "mustDetect:\"stub\"",
+        "mustDetect:\"placeholder\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO or CONDITIONAL_GO, got GO",
+        "category maintainability: expected at least 1, got 0",
+        "mustDetect: no finding title contained 'button'",
+        "mustDetect: no finding title contained 'alert'",
+        "mustDetect: no finding title contained 'handler'",
+        "mustDetect: no finding title contained 'billing'",
+        "mustDetect: no finding title contained 'TODO'",
+        "mustDetect: no finding title contained 'stub'",
+        "mustDetect: no finding title contained 'placeholder'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-dashboard-empty",
+      "description": "Dashboard with no meaningful content or widgets",
+      "tags": [
+        "dashboard",
+        "empty-state",
+        "ui"
+      ],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 139,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [WARN]"
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected WARN, got GO"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-fake-billing",
+      "description": "Next.js SaaS with fake billing API and TODO placeholders",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "WARN",
+      "passed": true,
+      "durationMs": 146,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 1,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO, NO_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'TODO'",
+        "mustDetect: no finding title contained 'fake'",
+        "mustDetect: no finding title contained 'placeholder'",
+        "mustDetect: no finding title contained 'billing'",
+        "mustDetect: no finding title contained 'stub'",
+        "mustDetect: no finding title contained 'wire'"
+      ],
+      "errors": [],
+      "warnings": [
+        "mustDetect: no finding title contained 'TODO'",
+        "mustDetect: no finding title contained 'fake'",
+        "mustDetect: no finding title contained 'placeholder'",
+        "mustDetect: no finding title contained 'billing'",
+        "mustDetect: no finding title contained 'stub'",
+        "mustDetect: no finding title contained 'wire'"
+      ]
+    },
+    {
+      "fixture": "next-saas-good",
+      "description": "Clean Next.js SaaS — positive control, no issues",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "PASS",
+      "passed": true,
+      "durationMs": 147,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 1,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings",
+        "mustNotDetect:\"fake-billing\"",
+        "mustNotDetect:\"broken-build\"",
+        "mustNotDetect:\"hardcoded-token\"",
+        "mustNotDetect:\"open-cors\"",
+        "mustNotDetect:\"unsafe-mcp-tool\"",
+        "mustNotDetect:\"exec(\"",
+        "mustNotDetect:\"innerHTML\""
+      ],
+      "missingAssertions": [],
+      "falsePositives": [],
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-noop-tests",
+      "description": "Test files exist but only assert expect(true).toBe(true) with no real behavior",
+      "tags": [
+        "testing",
+        "noop",
+        "shallow"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 152,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "categories.test",
+        "mustDetect:\"test\"",
+        "mustDetect:\"shallow\"",
+        "mustDetect:\"no-op\"",
+        "mustDetect:\"placeholder\"",
+        "mustDetect:\"assertion\"",
+        "mustDetect:\"mock\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO or CONDITIONAL_GO, got GO",
+        "category test: expected at least 1, got 0",
+        "mustDetect: no finding title contained 'test'",
+        "mustDetect: no finding title contained 'shallow'",
+        "mustDetect: no finding title contained 'no-op'",
+        "mustDetect: no finding title contained 'placeholder'",
+        "mustDetect: no finding title contained 'assertion'",
+        "mustDetect: no finding title contained 'mock'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-readme-mismatch",
+      "description": "README claims auth/billing/dashboard but code only has static pages",
+      "tags": [
+        "agent-output",
+        "fake-implementation",
+        "readme-mismatch"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 148,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings",
+        "mustNotDetect:\"JWT\"",
+        "mustNotDetect:\"Stripe\"",
+        "mustNotDetect:\"admin\""
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "categories.security",
+        "mustDetect:\"auth\"",
+        "mustDetect:\"billing\"",
+        "mustDetect:\"dashboard\"",
+        "mustDetect:\"feature\"",
+        "mustDetect:\"missing\"",
+        "mustDetect:\"claim\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO or CONDITIONAL_GO, got GO",
+        "category security: expected at least 1, got 0",
+        "mustDetect: no finding title contained 'auth'",
+        "mustDetect: no finding title contained 'billing'",
+        "mustDetect: no finding title contained 'dashboard'",
+        "mustDetect: no finding title contained 'feature'",
+        "mustDetect: no finding title contained 'missing'",
+        "mustDetect: no finding title contained 'claim'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-settings-noop-save",
+      "description": "Settings save button is a no-op — no handler wired",
+      "tags": [
+        "settings",
+        "noop-button",
+        "ui"
+      ],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 149,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [WARN]"
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected WARN, got GO"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "next-saas-unprotected-admin",
+      "description": "Next.js SaaS with unprotected admin endpoints",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "WARN",
+      "passed": true,
+      "durationMs": 145,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 1,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO, NO_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'admin'",
+        "mustDetect: no finding title contained 'auth'",
+        "mustDetect: no finding title contained 'missing'",
+        "mustDetect: no finding title contained 'role'",
+        "mustDetect: no finding title contained 'permission'",
+        "mustDetect: no finding title contained 'delete'",
+        "mustDetect: no finding title contained 'users'"
+      ],
+      "errors": [],
+      "warnings": [
+        "mustDetect: no finding title contained 'admin'",
+        "mustDetect: no finding title contained 'auth'",
+        "mustDetect: no finding title contained 'missing'",
+        "mustDetect: no finding title contained 'role'",
+        "mustDetect: no finding title contained 'permission'",
+        "mustDetect: no finding title contained 'delete'",
+        "mustDetect: no finding title contained 'users'"
+      ]
+    },
+    {
+      "fixture": "next-saas-unwired-component",
+      "description": "BillingPanel component exists but is never imported by any route — dead code",
+      "tags": [
+        "dead-code",
+        "unwired",
+        "unused"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 148,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "categories.maintainability",
+        "mustIncludeFile:BillingPanel",
+        "mustDetect:\"unused\"",
+        "mustDetect:\"dead\"",
+        "mustDetect:\"unwired\"",
+        "mustDetect:\"component\"",
+        "mustDetect:\"billing\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO or CONDITIONAL_GO, got GO",
+        "category maintainability: expected at least 1, got 0",
+        "mustIncludeFile: no finding references \"BillingPanel\"",
+        "mustDetect: no finding title contained 'unused'",
+        "mustDetect: no finding title contained 'dead'",
+        "mustDetect: no finding title contained 'unwired'",
+        "mustDetect: no finding title contained 'component'",
+        "mustDetect: no finding title contained 'billing'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "node-cli-broken-help",
+      "description": "CLI exits with code 1 on --help instead of 0 — breaks scripts and CI pipelines",
+      "tags": [
+        "runtime",
+        "cli",
+        "exit-code",
+        "help"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 144,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "categories.runtime",
+        "mustDetect:\"--help\"",
+        "mustDetect:\"exit\"",
+        "mustDetect:\"code\"",
+        "mustDetect:\"CLI\"",
+        "mustDetect:\"non-zero\"",
+        "mustDetect:\"pipeline\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO or CONDITIONAL_GO, got GO",
+        "category runtime: expected at least 1, got 0",
+        "mustDetect: no finding title contained '--help'",
+        "mustDetect: no finding title contained 'exit'",
+        "mustDetect: no finding title contained 'code'",
+        "mustDetect: no finding title contained 'CLI'",
+        "mustDetect: no finding title contained 'non-zero'",
+        "mustDetect: no finding title contained 'pipeline'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "python-bot-broad-except-pass",
+      "description": "Telegram bot swallows all exceptions with bare except-pass — errors are silently hidden",
+      "tags": [
+        "runtime",
+        "maintainability",
+        "exception",
+        "silent-failure"
+      ],
+      "mode": "hard",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 147,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 0,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {},
+        "findingTitles": []
+      },
+      "matchedAssertions": [
+        "criticalFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO, CONDITIONAL_GO]",
+        "highFindings",
+        "categories.maintainability",
+        "categories.runtime",
+        "mustIncludeFile:bot.py",
+        "mustDetect:\"except\"",
+        "mustDetect:\"pass\"",
+        "mustDetect:\"exception\"",
+        "mustDetect:\"silent\"",
+        "mustDetect:\"swallow\"",
+        "mustDetect:\"broad\""
+      ],
+      "falsePositives": [],
+      "errors": [
+        "verdict: expected NO_GO or CONDITIONAL_GO, got GO",
+        "highFindings: expected at least 1, got 0",
+        "category maintainability: expected at least 1, got 0",
+        "category runtime: expected at least 1, got 0",
+        "mustIncludeFile: no finding references \"bot.py\"",
+        "mustDetect: no finding title contained 'except'",
+        "mustDetect: no finding title contained 'pass'",
+        "mustDetect: no finding title contained 'exception'",
+        "mustDetect: no finding title contained 'silent'",
+        "mustDetect: no finding title contained 'swallow'",
+        "mustDetect: no finding title contained 'broad'"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "python-bot-hardcoded-token",
+      "description": "Telegram bot with hardcoded token in source code",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "FAIL",
+      "passed": false,
+      "durationMs": 147,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 1,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 0,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review"
+        ]
+      },
+      "matchedAssertions": [
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [
+        "verdict ∈ [NO_GO]",
+        "criticalFindings",
+        "categories.security"
+      ],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'token'",
+        "mustDetect: no finding title contained 'secret'",
+        "mustDetect: no finding title contained 'hardcoded'"
+      ],
+      "errors": [
+        "verdict: expected NO_GO, got GO",
+        "criticalFindings: expected at least 1, got 0",
+        "category security: expected at least 1, got 0"
+      ],
+      "warnings": [
+        "mustDetect: no finding title contained 'token'",
+        "mustDetect: no finding title contained 'secret'",
+        "mustDetect: no finding title contained 'hardcoded'"
+      ]
+    },
+    {
+      "fixture": "vite-ui-console-error",
+      "description": "Vite React app with intentional runtime ReferenceError and console.error",
+      "tags": [],
+      "mode": "soft",
+      "verdict": "WARN",
+      "passed": true,
+      "durationMs": 152,
+      "actual": {
+        "verdict": "GO",
+        "findingsCount": 2,
+        "criticalFindings": 0,
+        "highFindings": 0,
+        "mediumFindings": 1,
+        "lowFindings": 0,
+        "findingsByCategory": {
+          "build": 1,
+          "test": 1
+        },
+        "findingTitles": [
+          "dependencies not installed — install required before review",
+          "missing test script in package.json"
+        ]
+      },
+      "matchedAssertions": [
+        "verdict ∈ [GO, CONDITIONAL_GO, NO_GO]",
+        "criticalFindings",
+        "highFindings",
+        "totalFindings"
+      ],
+      "missingAssertions": [],
+      "falsePositives": [
+        "mustDetect: no finding title contained 'reference'",
+        "mustDetect: no finding title contained 'error'",
+        "mustDetect: no finding title contained 'console'",
+        "mustDetect: no finding title contained 'notDefinedFunction'",
+        "mustDetect: no finding title contained 'useffect'",
+        "mustDetect: no finding title contained 'console.error'"
+      ],
+      "errors": [],
+      "warnings": [
+        "mustDetect: no finding title contained 'reference'",
+        "mustDetect: no finding title contained 'error'",
+        "mustDetect: no finding title contained 'console'",
+        "mustDetect: no finding title contained 'notDefinedFunction'",
+        "mustDetect: no finding title contained 'useffect'",
+        "mustDetect: no finding title contained 'console.error'"
+      ]
+    }
+  ]
+}

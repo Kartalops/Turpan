@@ -1,0 +1,12 @@
+{
+  "overall": 0,
+  "categories": {
+    "correctness": 0,
+    "security": 0,
+    "performance": 0,
+    "maintainability": 0,
+    "codeCoverage": 0
+  },
+  "findingsCount": 1,
+  "criticalIssues": 0
+}

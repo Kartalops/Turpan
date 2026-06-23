@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-20T11-52-42-524Z",
+  "runPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/vite-ui-console-error/.turpan/runs/2026-06-20T11-52-42-524Z",
+  "timestamp": "2026-06-20T11:52:42.573Z",
+  "duration": 0,
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/vite-ui-console-error",
+  "verdict": "GO",
+  "overallScore": 99,
+  "findings": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 0,
+    "info": 1,
+    "total": 2
+  },
+  "scorecard": {
+    "overall": 99,
+    "categories": {
+      "correctness": 99,
+      "security": 100,
+      "performance": 100,
+      "maintainability": 100,
+      "codeCoverage": 95
+    },
+    "findingsCount": 2,
+    "criticalIssues": 0,
+    "project_readiness": 100
+  },
+  "fingerprint": {},
+  "hasFixResult": false,
+  "hasUiReview": false,
+  "hasSecurity": false,
+  "hasAgentAudit": false,
+  "nextActions": []
+}

@@ -1,0 +1,88 @@
+/**
+ * runAnalyzers — utility to run a set of analyzers and collect findings
+ */
+import { globalRegistry } from './AnalyzerRegistry.js';
+export async function runStaticQualityAnalyzers(ctx, registry = globalRegistry) {
+    const applicable = registry.applicableTo(ctx.fingerprint);
+    const results = [];
+    const errors = [];
+    const start = Date.now();
+    for (const analyzer of applicable) {
+        if (ctx.signal?.aborted)
+            break;
+        const aStart = Date.now();
+        try {
+            const result = await analyzer.run(ctx);
+            results.push({ ...result, analyzerId: analyzer.id, durationMs: Date.now() - aStart });
+        }
+        catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            errors.push(`[${analyzer.id}] ${msg}`);
+            results.push({
+                analyzerId: analyzer.id,
+                findings: [],
+                durationMs: Date.now() - aStart,
+                errors: [msg],
+            });
+        }
+    }
+    const findingsByCategory = registry.groupByCategory(results);
+    const findingsByAnalyzer = new Map(results.map(r => [r.analyzerId, r]));
+    return {
+        results,
+        totalFindings: results.reduce((n, r) => n + r.findings.length, 0),
+        findingsByCategory,
+        findingsByAnalyzer,
+        errors,
+        totalDurationMs: Date.now() - start,
+    };
+}
+export function categorizeCleanupCandidates(results) {
+    const safe = [];
+    const risky = [];
+    const unknown = [];
+    for (const result of results) {
+        for (const finding of result.findings) {
+            const candidate = {
+                finding,
+                analyzerId: result.analyzerId,
+                risk: 'unknown',
+                reason: '',
+            };
+            // Safe: unused deps, clearly orphaned files, obvious placeholders
+            if (result.analyzerId === 'unused-dependency' ||
+                result.analyzerId === 'placeholder-implementation') {
+                candidate.risk = finding.file ? 'safe' : 'risky';
+                candidate.reason = 'Confirmed unused or placeholder';
+            }
+            else if (result.analyzerId === 'unused-file') {
+                candidate.risk = 'safe';
+                candidate.reason = 'File has no import references';
+            }
+            else if (result.analyzerId === 'unused-export') {
+                candidate.risk = 'risky';
+                candidate.reason = 'May be used via dynamic imports or reflection';
+            }
+            else if (result.analyzerId === 'duplicate-code') {
+                candidate.risk = 'risky';
+                candidate.reason = 'Requires manual review to determine if deduplication is safe';
+            }
+            else if (result.analyzerId === 'complexity-hotspot') {
+                candidate.risk = 'risky';
+                candidate.reason = 'Refactoring may introduce bugs without tests';
+            }
+            else if (result.analyzerId === 'architecture-basic') {
+                candidate.risk = 'unknown';
+                candidate.reason = 'Architectural issue requires design review';
+            }
+            if (candidate.risk === 'safe')
+                safe.push(candidate);
+            else if (candidate.risk === 'risky')
+                risky.push(candidate);
+            else
+                unknown.push(candidate);
+        }
+    }
+    return { safe, risky, unknown };
+}
+//# sourceMappingURL=runAnalyzers.js.map

@@ -1,0 +1,15 @@
+{
+  "fixture": "fastapi-auth-bypass",
+  "description": "FastAPI app has verify_api_key auth logic but no route applies it — sensitive data is open",
+  "tags": ["security", "auth-bypass", "critical"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO"],
+    "criticalFindings": { "min": 1 },
+    "mustDetect": ["auth", "unprotected", "sensitive", "verify_api_key", "missing"],
+    "mustIncludeFile": ["main.py"],
+    "categories": {
+      "security": { "min": 2 }
+    }
+  }
+}

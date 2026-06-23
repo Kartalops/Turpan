@@ -1,0 +1,88 @@
+# MCP Security Ruleset — rules for Model Context Protocol servers
+
+extends: default
+
+rules:
+  # ── Tool Safety ─────────────────────────────────────────────────────────────
+  mcp-tool-require-input-schema:
+    severity: high
+    description: "All MCP tools must define an input JSON schema for type safety and validation"
+    patterns:
+      - "inputSchema"
+      - "schema:"
+    languages: [typescript, javascript]
+
+  mcp-tool-max-name-length:
+    severity: low
+    description: "Tool names should be ≤ 64 characters"
+    patterns:
+      - "name:"
+    languages: [typescript, javascript]
+
+  mcp-tool-require-timeout:
+    severity: high
+    description: "All tool handlers must accept and respect AbortSignal for cancellation"
+    patterns:
+      - "signal:"
+      - "AbortSignal"
+    languages: [typescript, javascript]
+
+  # ── Resource Access ─────────────────────────────────────────────────────────
+  mcp-validate-uri:
+    severity: critical
+    description: "Validate that requested URIs are within allowed directories — prevent path traversal"
+    patterns:
+      - "realpath"
+      - "resolve("
+      - "isWithin("
+    languages: [typescript, javascript]
+
+  mcp-block-absolute-paths:
+    severity: critical
+    description: "Block absolute file paths in resource requests — only allow relative paths"
+    patterns:
+      - "startsWith('/')"
+      - "^/etc/"
+      - "^/root/"
+    languages: [typescript, javascript]
+
+  # ── Server Config ─────────────────────────────────────────────────────────────
+  mcp-require-timeout-server:
+    severity: high
+    description: "MCP server must implement request timeouts"
+    patterns:
+      - "timeout"
+      - "setTimeout"
+    languages: [typescript, javascript]
+
+  mcp-require-cancellation:
+    severity: high
+    description: "MCP server must support request cancellation via AbortController"
+    patterns:
+      - "AbortController"
+    languages: [typescript, javascript]
+
+  mcp-log-all-requests:
+    severity: medium
+    description: "Log all incoming requests with tool name, arguments, and timestamp for audit"
+    patterns:
+      - "logger"
+      - "console.log"
+    languages: [typescript, javascript]
+
+  # ── Secrets ─────────────────────────────────────────────────────────────────
+  mcp-no-api-key-in-code:
+    severity: critical
+    description: "API keys must be read from environment variables, never hardcoded"
+    patterns:
+      - "api[_-]?key\\s*[=:]"
+    languages: [typescript, javascript]
+
+  # ── Output Filtering ─────────────────────────────────────────────────────────
+  mcp-sanitize-tool-output:
+    severity: high
+    description: "Tool outputs that include user data must be sanitized before returning"
+    patterns:
+      - "sanitize"
+      - "strip"
+    languages: [typescript, javascript]

@@ -1,0 +1,10 @@
+{
+  "fixture": "next-saas-good",
+  "description": "Clean Next.js SaaS — positive control, no issues",
+  "expected": {
+    "verdict": ["GO", "CONDITIONAL_GO"],
+    "criticalFindings": { "max": 0 },
+    "highFindings": { "max": 1 },
+    "mustNotDetect": ["fake-billing", "broken-build", "hardcoded-token", "open-cors", "unsafe-mcp-tool", "exec(", "innerHTML"]
+  }
+}

@@ -1,0 +1,7 @@
+[project]
+name = "python-dep-vulnerable"
+version = "1.0.0"
+
+[project.dependencies]
+pyyaml = "==5.3"
+requests = "==2.20.0"

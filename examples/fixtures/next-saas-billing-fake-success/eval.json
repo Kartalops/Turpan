@@ -1,0 +1,11 @@
+{
+  "fixture": "next-saas-billing-fake-success",
+  "description": "Checkout endpoint returns fake subscription IDs",
+  "tags": ["billing", "fake-checkout", "security"],
+  "expected": {
+    "mode": "soft",
+    "verdict": ["CONDITIONAL_GO", "NO_GO"],
+    "criticalFindings": { "max": 0 },
+    "highFindings": { "min": 1 }
+  }
+}

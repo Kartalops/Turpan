@@ -1,0 +1,54 @@
+{
+  "projectRoot": "/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/core",
+  "projectName": "@turpan/core",
+  "repositoryStatus": {
+    "isGitRepo": false
+  },
+  "packageManager": "unknown",
+  "languages": [
+    "TypeScript"
+  ],
+  "runtimeType": "node",
+  "appType": "unknown",
+  "uiFramework": "unknown",
+  "backendFramework": "unknown",
+  "testTools": [
+    "vitest"
+  ],
+  "buildCommands": [
+    "build"
+  ],
+  "devCommands": [],
+  "lintCommands": [
+    "lint"
+  ],
+  "typecheckCommands": [],
+  "testCommands": [
+    "test"
+  ],
+  "packageScripts": {
+    "build": "tsc",
+    "test": "npx vitest run",
+    "lint": "npx tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dockerAvailable": false,
+  "dockerComposeAvailable": false,
+  "envFiles": [],
+  "envRequirements": [],
+  "routeHints": [],
+  "entrypoints": [],
+  "databaseHints": [],
+  "authHints": [],
+  "deploymentHints": {
+    "dockerfile": false,
+    "dockerCompose": false,
+    "hasBuildScript": true
+  },
+  "detectedFiles": [
+    "package.json",
+    "tsconfig.json"
+  ],
+  "missingFiles": [],
+  "fingerprintedAt": "2026-06-19T11:04:48.583Z"
+}

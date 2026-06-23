@@ -1,0 +1,13 @@
+{
+  "fixture": "next-saas-button-noop",
+  "description": "Pricing button has alert-only handler with unconnected Stripe — placeholder UI behavior",
+  "tags": ["ui", "noop", "billing", "button"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "mustDetect": ["button", "alert", "handler", "billing", "TODO", "stub", "placeholder"],
+    "categories": {
+      "maintainability": { "min": 1 }
+    }
+  }
+}

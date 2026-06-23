@@ -1,0 +1,134 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/specification/main/schema/mcp-server-schema.json",
+  "name": "turpan",
+  "version": "0.1.0",
+  "description": "Turpan — AI code review, testing, and fix agent for software projects",
+  "command": "node",
+  "args": ["./dist/index.js", "mcp", "serve"],
+  "cwd": "./apps/mcp-server",
+  "env": {},
+  "capabilities": ["tools", "resources", "logging"],
+  "tools": [
+    {
+      "name": "turpan.review_project",
+      "description": "Run a Turpan code review on a project",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string", "description": "Path to the project to review" },
+          "mode": { "type": "string", "enum": ["quick", "deep"], "default": "quick" },
+          "includeUi": { "type": "boolean", "default": false },
+          "includeRuntime": { "type": "boolean", "default": false },
+          "includeSecurity": { "type": "boolean", "default": true },
+          "includeAgentAudit": { "type": "boolean", "default": false },
+          "taskFile": { "type": "string" },
+          "fixMode": { "type": "string", "enum": ["patch-only", "apply"], "default": "patch-only" }
+        },
+        "required": ["projectPath"]
+      }
+    },
+    {
+      "name": "turpan.review_diff",
+      "description": "Review the diff between two git refs",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string" },
+          "baseRef": { "type": "string" },
+          "targetRef": { "type": "string" },
+          "includeUi": { "type": "boolean", "default": false },
+          "taskFile": { "type": "string" }
+        },
+        "required": ["projectPath", "baseRef", "targetRef"]
+      }
+    },
+    {
+      "name": "turpan.live_ui_test",
+      "description": "Run live UI tests with Playwright",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string" },
+          "url": { "type": "string" },
+          "headed": { "type": "boolean", "default": false },
+          "mobile": { "type": "boolean", "default": false },
+          "trace": { "type": "boolean", "default": false }
+        },
+        "required": ["projectPath"]
+      }
+    },
+    {
+      "name": "turpan.agent_output_audit",
+      "description": "Audit agent implementation against original task",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string" },
+          "taskFile": { "type": "string" },
+          "agentName": { "type": "string" }
+        },
+        "required": ["projectPath", "taskFile"]
+      }
+    },
+    {
+      "name": "turpan.fix_findings",
+      "description": "Fix or patch Turpan findings",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string" },
+          "runId": { "type": "string" },
+          "findingIds": { "type": "array", "items": { "type": "string" } },
+          "fixMode": { "type": "string", "enum": ["patch-only", "apply"], "default": "patch-only" }
+        },
+        "required": ["projectPath", "fixMode"]
+      }
+    },
+    {
+      "name": "turpan.get_report",
+      "description": "Get the Turpan analysis report",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string" },
+          "runId": { "type": "string" },
+          "format": { "type": "string", "enum": ["markdown", "html", "json"], "default": "markdown" }
+        },
+        "required": ["projectPath"]
+      }
+    },
+    {
+      "name": "turpan.get_findings",
+      "description": "Get Turpan findings, optionally filtered",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": { "type": "string" },
+          "runId": { "type": "string" },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
+          "category": { "type": "string" }
+        },
+        "required": ["projectPath"]
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uriPattern": "turpan://runs/{runId}/{filename}",
+      "description": "Access Turpan run artifacts",
+      "examples": [
+        "turpan://runs/latest/TURPAN_ANALYSIS.md",
+        "turpan://runs/latest/TURPAN_FINDINGS.json",
+        "turpan://runs/latest/TURPAN_SCORECARD.json",
+        "turpan://runs/latest/TURPAN_PATCH.diff",
+        "turpan://runs/latest/screenshots",
+        "turpan://runs/latest/logs"
+      ]
+    }
+  ],
+  "notes": {
+    "security": "Read-only by default. fixMode=apply requires explicit user confirmation.",
+    "workspace": "Set --workspace flag to scope access to a specific project directory",
+    "transport": "stdio — all communication over stdin/stdout"
+  }
+}

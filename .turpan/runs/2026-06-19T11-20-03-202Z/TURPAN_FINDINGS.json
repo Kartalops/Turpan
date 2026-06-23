@@ -1,0 +1,52 @@
+{
+  "config": {
+    "version": "0.1.0",
+    "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent",
+    "runPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/.turpan/runs",
+    "deepAnalysis": false,
+    "uiAnalysis": false,
+    "fixMode": false,
+    "logLevel": "info"
+  },
+  "findings": [],
+  "scorecard": {
+    "overall": 100,
+    "categories": {
+      "correctness": 100,
+      "security": 100,
+      "performance": 100,
+      "maintainability": 100,
+      "codeCoverage": 100
+    },
+    "findingsCount": 0,
+    "criticalIssues": 0,
+    "project_readiness": 100
+  },
+  "timestamp": "2026-06-19T11:20:03.292Z",
+  "duration": 72,
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent",
+  "fingerprint": {
+    "projectName": "turpan",
+    "appType": "unknown",
+    "languages": [
+      "TypeScript"
+    ],
+    "packageManager": "pnpm",
+    "uiFramework": "unknown",
+    "backendFramework": "unknown",
+    "testTools": [
+      "vitest"
+    ],
+    "databaseHints": [],
+    "authHints": [],
+    "dockerAvailable": false,
+    "dockerComposeAvailable": false,
+    "envFiles": [],
+    "detectedFiles": [
+      "package.json",
+      "tsconfig.json",
+      "README.md",
+      "turpan.yml"
+    ]
+  }
+}

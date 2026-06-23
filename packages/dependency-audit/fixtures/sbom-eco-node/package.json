@@ -1,0 +1,7 @@
+{
+  "name": "sbom-eco-node",
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "1.0.0"
+  }
+}

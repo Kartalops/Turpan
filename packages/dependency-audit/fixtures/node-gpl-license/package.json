@@ -1,0 +1,7 @@
+{
+  "name": "node-gpl-license",
+  "version": "1.0.0",
+  "dependencies": {
+    "turpan-test-gpl": "1.0.0"
+  }
+}

@@ -1,0 +1,94 @@
+name: 'Turpan PR Review'
+description: 'Run Turpan code review on a PR diff — generates findings, PR comments, and CI artifacts'
+author: 'Turpan'
+branding:
+  icon: 'check-square'
+  color: 'purple'
+
+inputs:
+  project-path:
+    description: 'Path to the project to review (default: repository root)'
+    required: false
+    default: '.'
+  base-ref:
+    description: 'Base branch/tag/commit to diff from'
+    required: false
+    default: 'main'
+  head-ref:
+    description: 'Head branch/tag/commit to diff to'
+    required: false
+    default: 'HEAD'
+  review-mode:
+    description: 'Review depth: quick (default) or deep'
+    required: false
+    default: 'quick'
+  ui-enabled:
+    description: 'Enable UI analysis'
+    required: false
+    default: 'false'
+  dep-audit-enabled:
+    description: 'Enable dependency audit'
+    required: false
+    default: 'false'
+  fail-on:
+    description: 'Exit code policy: critical, high, never'
+    required: false
+    default: 'never'
+  post-comment:
+    description: 'Post PR comment (requires GITHUB_TOKEN)'
+    required: false
+    default: 'false'
+  update-comment:
+    description: 'Update existing sticky PR comment instead of creating new one'
+    required: false
+    default: 'true'
+  turpan-version:
+    description: 'Turpan version or dist-tag to use'
+    required: false
+    default: 'latest'
+
+outputs:
+  verdict:
+    description: 'Review verdict (GO, CONDITIONAL_GO, NO_GO)'
+  score:
+    description: 'Overall score (0-100)'
+  critical-count:
+    description: 'Number of critical findings'
+  high-count:
+    description: 'Number of high findings'
+  artifacts-url:
+    description: 'URL to uploaded artifacts (if any)'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Run Turpan Review'
+      id: review
+      shell: bash
+      env:
+        TURPAN_PROJECT_PATH: ${{ inputs.project-path }}
+        TURPAN_BASE_REF: ${{ inputs.base-ref }}
+        TURPAN_HEAD_REF: ${{ inputs.head-ref }}
+        TURPAN_REVIEW_MODE: ${{ inputs.review-mode }}
+        TURPAN_UI_ENABLED: ${{ inputs.ui-enabled }}
+        TURPAN_DEP_AUDIT_ENABLED: ${{ inputs.dep-audit-enabled }}
+        TURPAN_FAIL_ON: ${{ inputs.fail-on }}
+        TURPAN_POST_COMMENT: ${{ inputs.post-comment }}
+        TURPAN_UPDATE_COMMENT: ${{ inputs.update-comment }}
+        TURPAN_VERSION: ${{ inputs.turpan-version }}
+        GITHUB_TOKEN: ${{ inputs.post-comment == 'true' && github.token || '' }}
+      run: ${{ github.action_path }}/entrypoint.sh
+      working-directory: ${{ inputs.project-path }}
+
+  # Set outputs via GITHUB_OUTPUT (environment file)
+  # Note: outputs are set inside entrypoint.sh via GITHUB_OUTPUT
+
+test:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: ./
+      with:
+        base-ref: main
+        head-ref: HEAD
+        fail-on: never

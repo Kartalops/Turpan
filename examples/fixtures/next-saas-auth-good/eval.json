@@ -1,0 +1,11 @@
+{
+  "fixture": "next-saas-auth-good",
+  "description": "Clean positive control SaaS app with working auth",
+  "tags": ["auth", "saas", "positive-control"],
+  "expected": {
+    "mode": "soft",
+    "verdict": ["GO", "CONDITIONAL_GO"],
+    "criticalFindings": { "max": 0 },
+    "highFindings": { "max": 0 }
+  }
+}

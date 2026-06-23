@@ -1,0 +1,16 @@
+{
+  "format": "turpan-sbom",
+  "version": "1.0",
+  "projectName": "node-sbom-test",
+  "projectVersion": "1.0.0",
+  "components": [
+    {
+      "name": "axios",
+      "version": "^1.0.0",
+      "type": "library",
+      "dependencyType": "prod"
+    }
+  ],
+  "generatedAt": "2026-06-20T21:06:51.397Z",
+  "generator": "turpan-dependency-audit"
+}

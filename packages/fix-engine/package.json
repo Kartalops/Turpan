@@ -1,0 +1,39 @@
+{
+  "name": "@turpan/fix-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Safe Fix Engine for Turpan — finding-driven, minimal, reversible code fixes",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "turpan",
+    "fix-engine",
+    "patch",
+    "code-review"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@turpan/shared": "workspace:*",
+    "@turpan/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

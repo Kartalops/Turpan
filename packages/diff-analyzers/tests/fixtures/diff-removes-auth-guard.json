@@ -1,0 +1,48 @@
+{
+  "name": "diff-removes-auth-guard",
+  "description": "Diff removes auth middleware and adds explicit noAuth bypass in added lines",
+  "diffResult": {
+    "baseRef": "main",
+    "targetRef": "feature/auth-bypass",
+    "files": [
+      {
+        "path": "src/routes/admin.ts",
+        "changeType": "modified",
+        "linesAdded": 10,
+        "linesDeleted": 10,
+        "binary": false
+      }
+    ],
+    "hunks": [
+      {
+        "filePath": "src/routes/admin.ts",
+        "hunkIndex": 0,
+        "oldStart": 1,
+        "oldLines": 10,
+        "newStart": 1,
+        "newLines": 10,
+        "lines": [
+          { "type": "deleted", "content": "import { requireAuth } from '../middleware/auth';", "oldLineNum": 1 },
+          { "type": "deleted", "content": "router.use('/admin', requireAuth);", "oldLineNum": 2 },
+          { "type": "added", "content": "// skipAuth: temporary for dev", "newLineNum": 1 },
+          { "type": "added", "content": "router.use('/admin', (req, res, next) => next());", "newLineNum": 2 }
+        ]
+      }
+    ],
+    "stats": { "totalFiles": 1, "filesAdded": 0, "filesModified": 1, "filesDeleted": 0, "filesRenamed": 0, "totalLinesAdded": 10, "totalLinesDeleted": 10, "totalAdditions": 10, "totalDeletions": 10 },
+    "ownership": [{ "file": "src/routes/admin.ts", "ownership": "backend", "confidence": 85 }],
+    "changedRoutes": [{ "route": "/admin", "file": "src/routes/admin.ts", "changeType": "modified" }],
+    "changedApis": [],
+    "changedComponents": [],
+    "riskLevel": { "level": "high", "reasons": ["Auth guard potentially removed"], "files": ["src/routes/admin.ts"] },
+    "hasWorkingTreeChanges": false
+  },
+  "expectedFindings": [
+    {
+      "severity": "critical",
+      "category": "security",
+      "pattern": "skipAuth",
+      "file": "src/routes/admin.ts"
+    }
+  ]
+}

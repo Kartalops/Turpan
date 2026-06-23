@@ -1,0 +1,9 @@
+{
+  "fixture": "mcp-unsafe-tool",
+  "description": "MCP server with a tool that executes arbitrary shell commands",
+  "expected": {
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "mustDetect": ["exec", "arbitrary", "shell", "command"],
+    "criticalFindings": { "min": 1 }
+  }
+}

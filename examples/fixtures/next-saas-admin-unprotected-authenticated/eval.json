@@ -1,0 +1,11 @@
+{
+  "fixture": "next-saas-admin-unprotected-authenticated",
+  "description": "Admin route accessible without authentication — test verifies unauthenticated access check",
+  "tags": ["auth", "admin", "saas", "ui", "unprotected"],
+  "expected": {
+    "mode": "soft",
+    "verdict": ["WARN", "CONDITIONAL_GO", "NO_GO"],
+    "criticalFindings": { "max": 0 },
+    "highFindings": { "min": 1 }
+  }
+}

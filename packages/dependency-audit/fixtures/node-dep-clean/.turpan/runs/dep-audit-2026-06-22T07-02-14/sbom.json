@@ -1,0 +1,29 @@
+{
+  "format": "turpan-sbom",
+  "version": "1.0",
+  "projectName": "node-dep-clean",
+  "projectVersion": "1.0.0",
+  "projectEcosystem": "npm",
+  "components": [
+    {
+      "name": "chalk",
+      "version": "5.0.0",
+      "ecosystem": "npm",
+      "type": "library",
+      "dependencyType": "prod",
+      "source": "direct",
+      "sourceFile": "/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/dependency-audit/fixtures/node-dep-clean/package.json"
+    },
+    {
+      "name": "nanoid",
+      "version": "3.3.4",
+      "ecosystem": "npm",
+      "type": "library",
+      "dependencyType": "prod",
+      "source": "direct",
+      "sourceFile": "/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/dependency-audit/fixtures/node-dep-clean/package.json"
+    }
+  ],
+  "generatedAt": "2026-06-22T07:02:14.745Z",
+  "generator": "turpan-dependency-audit"
+}

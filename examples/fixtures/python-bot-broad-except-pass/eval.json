@@ -1,0 +1,16 @@
+{
+  "fixture": "python-bot-broad-except-pass",
+  "description": "Telegram bot swallows all exceptions with bare except-pass — errors are silently hidden",
+  "tags": ["runtime", "maintainability", "exception", "silent-failure"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "highFindings": { "min": 1 },
+    "mustDetect": ["except", "pass", "exception", "silent", "swallow", "broad"],
+    "mustIncludeFile": ["bot.py"],
+    "categories": {
+      "maintainability": { "min": 1 },
+      "runtime": { "min": 1 }
+    }
+  }
+}

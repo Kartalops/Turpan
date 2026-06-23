@@ -1,0 +1,1 @@
+{"version":3,"file":"PluginContext.js","sourceRoot":"","sources":["../../src/plugins/PluginContext.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAqCH;;GAEG;AACH,MAAM,UAAU,kBAAkB,CAChC,WAAmB,EACnB,WAA+B,EAC/B,MAA6B,EAC7B,MAAoB;IAEpB,OAAO;QACL,WAAW;QACX,WAAW;QACX,SAAS,EAAE,GAAG,WAAW,UAAU;QACnC,MAAM;QACN,MAAM;KACP,CAAC;AACJ,CAAC"}

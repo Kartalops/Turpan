@@ -1,0 +1,8 @@
+{
+  "fixture": "next-saas-fake-billing",
+  "description": "Next.js SaaS with fake billing API and TODO placeholders",
+  "expected": {
+    "verdict": ["GO", "CONDITIONAL_GO", "NO_GO"],
+    "mustDetect": ["TODO", "fake", "placeholder", "billing", "stub", "wire"]
+  }
+}

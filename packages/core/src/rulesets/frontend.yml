@@ -1,0 +1,86 @@
+# Frontend Ruleset — for browser / UI projects (React, Vue, Svelte, etc.)
+
+extends: default
+
+rules:
+  # ── React ─────────────────────────────────────────────────────────────────
+  react-no-array-index-key:
+    severity: medium
+    description: "Don't use array index as key in list rendering — use stable IDs"
+    patterns:
+      - "\\{.*map\\([^)]*,\\s*\\w+\\s*\\)"
+    languages: [typescript, javascript]
+
+  react-hooks-rules:
+    severity: high
+    description: "Enforce React hooks rules (only call at top level, only call from React functions)"
+    patterns:
+      - "if\\s*\\(.*\\)\\s*\\{[^}]*useState[^}]*\\}"
+    languages: [typescript, javascript]
+
+  no-inner-html:
+    severity: high
+    description: "Avoid direct innerHTML — use textContent or a sanitizer"
+    patterns:
+      - "\\.innerHTML\\s*="
+    languages: [typescript, javascript]
+
+  dangerously-set-inner-html:
+    severity: high
+    description: "Verify dangerouslySetInnerHTML is safe — use DOMPurify or similar"
+    patterns:
+      - "dangerouslySetInnerHTML"
+    languages: [typescript, javascript]
+
+  # ── Vite / Build ────────────────────────────────────────────────────────────
+  no-process-env:
+    severity: high
+    description: "Use import.meta.env instead of process.env in Vite projects"
+    patterns:
+      - "process\\.env\\.[A-Z_]+"
+    languages: [typescript, javascript]
+
+  # ── Performance ─────────────────────────────────────────────────────────────
+  no-large-bundles:
+    severity: medium
+    description: "Lazy-load large components with dynamic imports"
+    patterns:
+      - "import\\s*\\("
+    languages: [typescript, javascript]
+
+  no-sync-xhr:
+    severity: high
+    description: "Avoid synchronous XMLHttpRequest — use fetch with async/await"
+    patterns:
+      - "XMLHttpRequest"
+    languages: [typescript, javascript]
+
+  # ── Accessibility ───────────────────────────────────────────────────────────
+  no-negative-tabindex:
+    severity: medium
+    description: "tabindex values should be 0 or positive, not negative"
+    patterns:
+      - "tabIndex\\s*=\\s*-1"
+    languages: [typescript, javascript]
+
+  img-has-alt:
+    severity: medium
+    description: "<img> elements must have alt text"
+    patterns:
+      - "<img[^>]*>"
+    languages: [typescript, javascript]
+
+  # ── Security ────────────────────────────────────────────────────────────────
+  cors-wildcard:
+    severity: critical
+    description: "CORS should not use wildcard (*) in production"
+    patterns:
+      - "Access-Control-Allow-Origin:\\s*\\*"
+    languages: [typescript, javascript]
+
+  strict-transport-security:
+    severity: high
+    description: "Add Strict-Transport-Security header"
+    patterns:
+      - "Strict-Transport-Security"
+    languages: [typescript, javascript]

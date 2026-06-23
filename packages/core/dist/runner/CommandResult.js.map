@@ -1,0 +1,1 @@
+{"version":3,"file":"CommandResult.js","sourceRoot":"","sources":["../../src/runner/CommandResult.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,uCAAuC;AACvC,MAAM,CAAC,MAAM,cAAc,GAA2D;IACpF,OAAO,EAAS,UAAU;IAC1B,MAAM,EAAU,MAAM;IACtB,MAAM,EAAU,QAAQ;IACxB,WAAW,EAAK,MAAM;IACtB,eAAe,EAAC,MAAM;CACvB,CAAC"}

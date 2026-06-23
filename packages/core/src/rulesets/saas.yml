@@ -1,0 +1,90 @@
+# SaaS Ruleset — rules specific to SaaS / multi-tenant web applications
+
+extends: default
+
+rules:
+  # ── SaaS Route Coverage ───────────────────────────────────────────────────
+  saas-required-routes:
+    severity: medium
+    description: "SaaS apps should include common routes: /, /pricing, /login, /register, /dashboard, /settings, /billing"
+    patterns:
+      - "/pricing"
+      - "/login"
+      - "/register"
+      - "/dashboard"
+    languages: [typescript, javascript]
+
+  # ── Auth ─────────────────────────────────────────────────────────────────
+  saas-require-auth-on-private:
+    severity: high
+    description: "Private routes (/dashboard, /settings, /billing) must check authentication"
+    patterns:
+      - "/dashboard"
+      - "/settings"
+      - "/billing"
+    languages: [typescript, javascript]
+
+  saas-require-password-min-length:
+    severity: high
+    description: "Enforce minimum password length (8+ chars)"
+    patterns:
+      - "minLength"
+    languages: [typescript, javascript]
+
+  # ── Multi-tenancy ──────────────────────────────────────────────────────────
+  tenant-isolation:
+    severity: critical
+    description: "Database queries must filter by tenant_id — never expose data from other tenants"
+    patterns:
+      - "WHERE\\s+tenant_id"
+    languages: [typescript, javascript, python, go]
+
+  saas-require-tenant-id:
+    severity: critical
+    description: "Every database table with tenant data must have tenant_id column"
+    patterns:
+      - "CREATE TABLE"
+    languages: [typescript, javascript, python, go]
+
+  # ── Billing / Payments ──────────────────────────────────────────────────────
+  billing-no-card-storage:
+    severity: critical
+    description: "Never store raw card data — use Stripe/billing provider tokens"
+    patterns:
+      - "card_number"
+      - "cvv"
+      - " expiry"
+    languages: [typescript, javascript, python, go]
+
+  billing-webhook-verify:
+    severity: high
+    description: "Billing webhooks must verify signature before processing"
+    patterns:
+      - "webhook"
+      - "stripe"
+    languages: [typescript, javascript, python, go]
+
+  # ── Email ──────────────────────────────────────────────────────────────────
+  email-verify-before-action:
+    severity: medium
+    description: "Verify email ownership before sending account actions"
+    patterns:
+      - "sendEmail"
+      - "sendGrid"
+      - "ses"
+    languages: [typescript, javascript, python, go]
+
+  # ── GDPR / Privacy ──────────────────────────────────────────────────────────
+  gdpr-no-full-name-in-url:
+    severity: medium
+    description: "Avoid full names or PII in URL parameters"
+    patterns:
+      - "req\\.params\\."
+    languages: [typescript, javascript]
+
+  saas-require-consent:
+    severity: medium
+    description: "Obtain and log user consent before data processing"
+    patterns:
+      - "consent"
+    languages: [typescript, javascript]

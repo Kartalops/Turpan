@@ -1,0 +1,14 @@
+{
+  "fixture": "next-saas-unwired-component",
+  "description": "BillingPanel component exists but is never imported by any route — dead code",
+  "tags": ["dead-code", "unwired", "unused"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "mustDetect": ["unused", "dead", "unwired", "component", "billing"],
+    "mustIncludeFile": ["BillingPanel"],
+    "categories": {
+      "maintainability": { "min": 1 }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+# Backend Ruleset — for Node.js backend, Python, Go backends
+
+extends: default
+
+rules:
+  # ── Auth ────────────────────────────────────────────────────────────────────
+  no-hardcoded-passwords:
+    severity: critical
+    description: "Never hardcode passwords or secrets — use env vars"
+    patterns:
+      - "password\\s*[=:]\\s*[\"'][^\$][^\"']{7,}[\"']"
+      - "passwd\\s*[=:]"
+      - "pwd\\s*[=:]\\s*[\"'][^\$][^\"']{7,}[\"']"
+    languages: [typescript, javascript, python, go]
+
+  require-jwt-expiry:
+    severity: high
+    description: "JWT tokens should have expiry (exp claim)"
+    patterns:
+      - "jwt\\.sign\\("
+    languages: [typescript, javascript]
+
+  # ── SQL / Database ──────────────────────────────────────────────────────────
+  sql-no-string-concat:
+    severity: critical
+    description: "Use parameterized queries — never concatenate user input into SQL"
+    patterns:
+      - "query\\s*[:=]\\s*[`\"'].*\\+.*[`\"']"
+      - "SELECT\\s+\\*\\s+FROM.*\\+"
+    languages: [typescript, javascript, python]
+
+  require-orm:
+    severity: low
+    description: "Consider using an ORM for database operations"
+    languages: [typescript, javascript]
+
+  # ── Input Validation ─────────────────────────────────────────────────────────
+  no-trusted-types:
+    severity: medium
+    description: "Enable Trusted Types to prevent XSS in frontend"
+    patterns:
+      - "trustedTypes"
+    languages: [typescript, javascript]
+
+  require-rate-limiting:
+    severity: high
+    description: "All public API endpoints must have rate limiting"
+    patterns:
+      - "rateLimit"
+      - "RateLimit"
+    languages: [typescript, javascript, python]
+
+  # ── Node.js ─────────────────────────────────────────────────────────────────
+  no-sync-fs:
+    severity: medium
+    description: "Use async filesystem methods instead of sync versions"
+    patterns:
+      - "readFileSync\\("
+      - "writeFileSync\\("
+      - "readdirSync\\("
+    languages: [typescript, javascript]
+
+  require-timeout:
+    severity: medium
+    description: "Wrap external calls with timeouts"
+    patterns:
+      - "setTimeout\\("
+    languages: [typescript, javascript]
+
+  require-cancellation:
+    severity: medium
+    description: "Support AbortSignal / cancellation for long-running operations"
+    patterns:
+      - "AbortSignal"
+    languages: [typescript, javascript]
+
+  # ── Headers ─────────────────────────────────────────────────────────────────
+  no-cache-control-none:
+    severity: low
+    description: "Avoid Cache-Control: no-cache,no-store on all responses — cacheable content should be cached"
+    patterns:
+      - "Cache-Control:\\s*no-cache,\\s*no-store"
+    languages: [typescript, javascript, go]
+
+  require-helmet:
+    severity: medium
+    description: "Use Helmet.js for security headers"
+    patterns:
+      - "helmet\\("
+    languages: [typescript, javascript]
+
+  # ── Python ───────────────────────────────────────────────────────────────────
+  python-no-assert:
+    severity: low
+    description: "assert is optimized out in production — use if/raise instead"
+    patterns:
+      - "^\\s*assert\\s+"
+    languages: [python]

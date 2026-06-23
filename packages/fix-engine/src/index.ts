@@ -1,0 +1,109 @@
+/**
+ * @turpan/fix-engine — Safe Fix Engine
+ *
+ * Finding-driven, minimal, reversible code fixes.
+ *
+ * Core workflow:
+ *  FixPlanner.buildFixPlan() → FixPlan
+ *  PatchGenerator.generatePatch() → unified diff
+ *  PatchApplier.applyFixCandidates() → ApplyResult
+ *  PatchVerifier.verifyPatch() → ValidationSummary
+ *  RollbackManager.rollback() → RollbackOutcome
+ *
+ * Fix modes:
+ *  report-only  — analyze and report, no modifications (default)
+ *  patch-only   — generate patch diff, do not apply
+ *  apply        — apply patch to working tree
+ *  interactive  — ask before applying each fix
+ *  auto-safe    — apply only safe fix categories automatically
+ */
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+export * from './types.js';
+
+// ─── Policy ──────────────────────────────────────────────────────────────────
+export {
+  DEFAULT_FIX_POLICY,
+  policyForMode,
+  mergePolicy,
+  isAutoApplicable,
+  isModeAllowed,
+  requiresConfirmation,
+  validatePolicy,
+} from './FixPolicy.js';
+
+export type { FixPolicy } from './types.js';
+
+// ─── Safe Fix Catalog ─────────────────────────────────────────────────────────
+export {
+  lookupStrategy,
+  isFixable,
+  filterFixable,
+  getSafeStrategies,
+  UNSAFE_FIX_CATEGORIES,
+} from './SafeFixCatalog.js';
+
+export type { FixStrategy, FixReplacement } from './SafeFixCatalog.js';
+
+// ─── Fix Candidate ────────────────────────────────────────────────────────────
+export {
+  createFixCandidate,
+  createFixCandidates,
+  filterByCategory,
+  filterByConfidence,
+  getAutoSafeCandidates,
+  aggregateRequiredChecks,
+  groupByFile,
+  extractSnippet,
+} from './FixCandidate.js';
+
+// ─── Fix Planner ─────────────────────────────────────────────────────────────
+export {
+  buildFixPlan,
+  buildFixRunResult,
+  summarizePlan,
+} from './FixPlanner.js';
+
+export type { FixPlannerConfig, FixPlan, PlanResult } from './FixPlanner.js';
+
+// ─── Patch Generator ──────────────────────────────────────────────────────────
+export {
+  generatePatch,
+  generateSinglePatch,
+  formatPatchHeader,
+} from './PatchGenerator.js';
+
+export type { PatchResult } from './types.js';
+
+// ─── Patch Applier ────────────────────────────────────────────────────────────
+export {
+  applyFixCandidates,
+  dryRunPatchApply,
+} from './PatchApplier.js';
+
+export type { ApplyOptions, ApplyResult } from './PatchApplier.js';
+
+// ─── Patch Verifier ───────────────────────────────────────────────────────────
+export {
+  verifyPatch,
+  shouldRollback,
+} from './PatchVerifier.js';
+
+export type { VerifyOptions } from './PatchVerifier.js';
+export type { ValidationSummary, ValidationResult } from './types.js';
+
+// ─── Rollback Manager ─────────────────────────────────────────────────────────
+export {
+  rollback,
+  saveRollbackRecord,
+  getCurrentCommitHash,
+  getBackupDir,
+  listBackups,
+  parseBackupFilename,
+} from './RollbackManager.js';
+
+export type { RollbackOptions, RollbackOutcome } from './RollbackManager.js';
+
+// ─── Report Writer ────────────────────────────────────────────────────────────
+export { writeFixReport, renderFixPlanReport, renderFixResultReport } from './reportWriter.js';
+export type { ReportPaths } from './reportWriter.js';

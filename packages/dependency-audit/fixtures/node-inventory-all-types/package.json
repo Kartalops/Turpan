@@ -1,0 +1,13 @@
+{
+  "name": "node-inventory-all-types",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "optional-pkg": "1.0.0"
+  }
+}

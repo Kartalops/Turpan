@@ -1,0 +1,157 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-22T14-02-20-994Z",
+  "timestamp": "2026-06-22T14:02:21.926Z",
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good",
+  "verdict": "NO_GO",
+  "total": 5,
+  "breakdown": {
+    "critical": 1,
+    "high": 1,
+    "medium": 2,
+    "low": 0,
+    "info": 1
+  },
+  "findings": [
+    {
+      "id": "fnd-mqpabkdo0",
+      "title": "Dependencies not installed — install required before review",
+      "severity": "info",
+      "category": "build",
+      "explanation": "The node_modules directory is missing. Turpan cannot run build, test, lint, or typecheck without first installing dependencies. Run your package manager install command before re-running the review, or pass the --install flag to have Turpan install automatically (if configured).",
+      "evidence": [
+        {
+          "type": "file",
+          "label": "Missing node_modules",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/node_modules",
+          "excerpt": "Directory not found — node_modules is missing",
+          "timestamp": "2026-06-22T14:02:21.036Z"
+        }
+      ],
+      "suggestedFix": "Run: npm install",
+      "fixable": "manual",
+      "confidence": 95,
+      "tags": [
+        "install",
+        "setup",
+        "node_modules"
+      ]
+    },
+    {
+      "id": "fnd-mqpabkdo1",
+      "title": "Missing test script in package.json",
+      "severity": "medium",
+      "category": "test",
+      "explanation": "No `test` script was detected in package.json. The test stage will be skipped without a test command.",
+      "evidence": [
+        {
+          "type": "file",
+          "label": "package.json",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/package.json",
+          "excerpt": "{\n  \"dev\": \"next dev\",\n  \"build\": \"next build\",\n  \"start\": \"next start\",\n  \"lint\": \"next lint\",\n  \"typecheck\": \"tsc --noEmit\"\n}",
+          "timestamp": "2026-06-22T14:02:21.036Z"
+        }
+      ],
+      "suggestedFix": "Add a \"test\" script to package.json, e.g. \"test\": \"vitest\" or \"test\": \"jest\"",
+      "fixable": "manual",
+      "confidence": 80,
+      "tags": [
+        "scripts",
+        "missing-test"
+      ]
+    },
+    {
+      "id": "fnd-mqpabkg22",
+      "title": "Build script 'build' failed with exit code 127",
+      "severity": "critical",
+      "category": "build",
+      "explanation": "The build command exited with a non-zero exit code. This typically means a compilation error, missing dependency, or configuration issue.",
+      "evidence": [
+        {
+          "type": "command-log",
+          "label": "build-failure",
+          "excerpt": "\n> next-saas-auth-good@1.0.0 build\n> next build\n\n",
+          "timestamp": "2026-06-22T14:02:21.122Z",
+          "command": "npm run build",
+          "exitCode": 127
+        },
+        {
+          "type": "file",
+          "label": "build-log",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/.turpan/runs/latest/logs/build-build_2026-06-22T14-02-21-121Z.log",
+          "excerpt": "Full build log saved to: /home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/.turpan/runs/latest/logs/build-build_2026-06-22T14-02-21-121Z.log",
+          "timestamp": "2026-06-22T14:02:21.122Z"
+        }
+      ],
+      "suggestedFix": "Run the build manually to see full error: npm run build",
+      "fixable": "manual",
+      "confidence": 90,
+      "tags": [
+        "build",
+        "failure"
+      ]
+    },
+    {
+      "id": "fnd-mqpabkz43",
+      "title": "TypeScript type errors found (exit code 2)",
+      "severity": "high",
+      "category": "typecheck",
+      "explanation": "The TypeScript compiler reported type errors. These are real type safety issues that should be fixed.",
+      "evidence": [
+        {
+          "type": "command-log",
+          "label": "typecheck-output",
+          "excerpt": "\n> next-saas-auth-good@1.0.0 typecheck\n> tsc --noEmit\n\napp/admin/page.tsx(1,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.\napp/admin/page.tsx(2,26): error TS2307: Cannot find module 'next/navigation' or its corresponding type declarations.\napp/admin/page.tsx(18,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(19,9): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(19,24): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(20,9): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(20,45): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(21,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(26,5): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(27,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(27,22): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(28,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(28,33): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(29,7): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/admin/page.tsx(30,9): error TS7026: JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.\napp/adm\n…[truncated]",
+          "timestamp": "2026-06-22T14:02:21.808Z",
+          "command": "npm run typecheck",
+          "exitCode": 2
+        },
+        {
+          "type": "file",
+          "label": "typecheck-log",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/.turpan/runs/latest/logs/typecheck-typecheck_2026-06-22T14-02-21-806Z.log",
+          "excerpt": "Full typecheck log: /home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/.turpan/runs/latest/logs/typecheck-typecheck_2026-06-22T14-02-21-806Z.log",
+          "timestamp": "2026-06-22T14:02:21.808Z"
+        }
+      ],
+      "suggestedFix": "Fix type errors — run 'tsc --noEmit' for details",
+      "fixable": "manual",
+      "confidence": 90,
+      "tags": [
+        "typecheck",
+        "failure"
+      ]
+    },
+    {
+      "id": "fnd-mqpabl1h4",
+      "title": "Lint script 'lint' found issues (exit code 127)",
+      "severity": "medium",
+      "category": "lint",
+      "explanation": "The linter reported issues. Review the output for details — these are style, quality, or potential bug findings.",
+      "evidence": [
+        {
+          "type": "command-log",
+          "label": "lint-output",
+          "excerpt": "\n> next-saas-auth-good@1.0.0 lint\n> next lint\n\n",
+          "timestamp": "2026-06-22T14:02:21.893Z",
+          "command": "npm run lint",
+          "exitCode": 127
+        },
+        {
+          "type": "file",
+          "label": "lint-log",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/.turpan/runs/latest/logs/lint-lint_2026-06-22T14-02-21-893Z.log",
+          "excerpt": "Full lint log saved to: /home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/next-saas-auth-good/.turpan/runs/latest/logs/lint-lint_2026-06-22T14-02-21-893Z.log",
+          "timestamp": "2026-06-22T14:02:21.893Z"
+        }
+      ],
+      "suggestedFix": "Fix lint issues manually or run with auto-fix: npm run lint -- --fix",
+      "fixable": "auto",
+      "confidence": 90,
+      "tags": [
+        "lint",
+        "failure"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@turpan/git-diff",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Read-only git diff detection and analysis for Turpan",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": ["git", "diff", "code-review"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "dependencies": {
+    "@turpan/shared": "workspace:*"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "fixture": "fastapi-open-cors",
+  "description": "FastAPI app with permissive CORS and open PII endpoint",
+  "expected": {
+    "verdict": ["GO", "CONDITIONAL_GO", "NO_GO"],
+    "mustDetect": ["cors", "allow_origins", "PII", "users", "email", "auth"]
+  }
+}

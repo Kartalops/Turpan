@@ -1,0 +1,79 @@
+{
+  "config": {
+    "version": "0.1.0",
+    "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/python-bot-hardcoded-token",
+    "runPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/python-bot-hardcoded-token/.turpan/runs",
+    "deepAnalysis": false,
+    "uiAnalysis": false,
+    "fixMode": false,
+    "logLevel": "info"
+  },
+  "findings": [
+    {
+      "title": "Dependencies not installed — install required before review",
+      "explanation": "The node_modules directory is missing. Turpan cannot run build, test, lint, or typecheck without first installing dependencies. Run your package manager install command before re-running the review, or pass the --install flag to have Turpan install automatically (if configured).",
+      "category": "build",
+      "severity": "info",
+      "confidence": 95,
+      "fixable": "manual",
+      "suggestedFix": "Run: npm install",
+      "tags": [
+        "install",
+        "setup",
+        "node_modules"
+      ],
+      "evidence": [
+        {
+          "type": "file",
+          "timestamp": "2026-06-22T14:02:22.494Z",
+          "label": "Missing node_modules",
+          "path": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/python-bot-hardcoded-token/node_modules",
+          "excerpt": "Directory not found — node_modules is missing",
+          "metadata": {
+            "packageManager": "unknown",
+            "required": true
+          }
+        }
+      ],
+      "id": "fnd-mqpabli60"
+    }
+  ],
+  "scorecard": {
+    "overall": 100,
+    "categories": {
+      "correctness": 100,
+      "security": 100,
+      "performance": 100,
+      "maintainability": 100,
+      "codeCoverage": 100
+    },
+    "findingsCount": 1,
+    "criticalIssues": 0,
+    "project_readiness": 100
+  },
+  "timestamp": "2026-06-22T14:02:22.527Z",
+  "duration": 23,
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/python-bot-hardcoded-token",
+  "fingerprint": {
+    "projectName": "python-bot-hardcoded-token",
+    "appType": "python-bot",
+    "languages": [
+      "Python"
+    ],
+    "packageManager": "unknown",
+    "uiFramework": "unknown",
+    "backendFramework": "unknown",
+    "testTools": [
+      "unknown"
+    ],
+    "databaseHints": [],
+    "authHints": [],
+    "dockerAvailable": false,
+    "dockerComposeAvailable": false,
+    "envFiles": [],
+    "detectedFiles": [
+      "requirements.txt",
+      "README.md"
+    ]
+  }
+}

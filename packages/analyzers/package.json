@@ -1,0 +1,38 @@
+{
+  "name": "@turpan/analyzers",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Static and runtime analyzers for Turpan — agent output audit, capability matching, secret and pattern detection",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "turpan",
+    "analyzer",
+    "code-review",
+    "static-analysis"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@turpan/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

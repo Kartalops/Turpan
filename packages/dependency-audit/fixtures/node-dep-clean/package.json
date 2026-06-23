@@ -1,0 +1,8 @@
+{
+  "name": "node-dep-clean",
+  "version": "1.0.0",
+  "dependencies": {
+    "chalk": "5.0.0",
+    "nanoid": "3.3.4"
+  }
+}

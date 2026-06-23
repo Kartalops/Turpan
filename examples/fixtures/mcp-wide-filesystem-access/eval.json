@@ -1,0 +1,15 @@
+{
+  "fixture": "mcp-wide-filesystem-access",
+  "description": "MCP tool accepts arbitrary filesystem paths with no workspace boundary validation",
+  "tags": ["mcp", "security", "critical", "arbitrary-path"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO"],
+    "criticalFindings": { "min": 1 },
+    "mustDetect": ["filesystem", "arbitrary", "path", "workspace", "bounds", "readFileSync"],
+    "mustIncludeFile": ["server.ts"],
+    "categories": {
+      "security": { "min": 1 }
+    }
+  }
+}

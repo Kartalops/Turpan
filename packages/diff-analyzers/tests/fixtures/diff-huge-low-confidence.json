@@ -1,0 +1,40 @@
+{
+  "name": "diff-huge-low-confidence",
+  "description": "120 files changed — huge diff, low confidence",
+  "diffResult": {
+    "baseRef": "main",
+    "targetRef": "refactor/everything",
+    "files": [
+      { "path": "src/utils/helpers.ts", "changeType": "modified", "linesAdded": 20, "linesDeleted": 20, "binary": false },
+      { "path": "src/components/Button.tsx", "changeType": "modified", "linesAdded": 15, "linesDeleted": 10, "binary": false },
+      { "path": "src/hooks/useAuth.ts", "changeType": "modified", "linesAdded": 25, "linesDeleted": 5, "binary": false }
+    ],
+    "hunks": [
+      {
+        "filePath": "src/utils/helpers.ts",
+        "hunkIndex": 0,
+        "oldStart": 1,
+        "oldLines": 20,
+        "newStart": 1,
+        "newLines": 20,
+        "lines": [
+          { "type": "context", "content": "export function formatDate(date: Date): string {", "oldLineNum": 1, "newLineNum": 1 },
+          { "type": "added", "content": "  return date.toISOString().split('T')[0];", "newLineNum": 5 }
+        ]
+      }
+    ],
+    "stats": { "totalFiles": 120, "filesAdded": 40, "filesModified": 60, "filesDeleted": 20, "filesRenamed": 0, "totalLinesAdded": 2500, "totalLinesDeleted": 1800, "totalAdditions": 2500, "totalDeletions": 1800 },
+    "ownership": [
+      { "file": "src/utils/helpers.ts", "ownership": "shared", "confidence": 75 }
+    ],
+    "changedRoutes": [],
+    "changedApis": [],
+    "changedComponents": [],
+    "riskLevel": { "level": "low", "reasons": [], "files": [] },
+    "hasWorkingTreeChanges": false
+  },
+  "expectedFindings": [],
+  "expectedDecision": "approve",
+  "expectedConfidence": "low",
+  "expectedNote": "confidence degrades on huge diffs"
+}

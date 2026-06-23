@@ -1,0 +1,14 @@
+{
+  "fixture": "next-saas-readme-mismatch",
+  "description": "README claims auth/billing/dashboard but code only has static pages",
+  "tags": ["agent-output", "fake-implementation", "readme-mismatch"],
+  "expected": {
+    "mode": "hard",
+    "verdict": ["NO_GO", "CONDITIONAL_GO"],
+    "mustDetect": ["auth", "billing", "dashboard", "feature", "missing", "claim"],
+    "mustNotDetect": ["JWT", "Stripe", "admin"],
+    "categories": {
+      "security": { "min": 1 }
+    }
+  }
+}

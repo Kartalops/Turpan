@@ -1,0 +1,43 @@
+{
+  "name": "@turpan/ui-runner",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Playwright-powered UI testing for Turpan — live browser scenarios, route discovery, screenshot capture",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "turpan",
+    "ui-testing",
+    "playwright",
+    "e2e"
+  ],
+  "dependencies": {
+    "@turpan/core": "workspace:*",
+    "@turpan/shared": "workspace:*",
+    "playwright": "^1.42.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.1",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npx vitest run",
+    "lint": "npx tsc --noEmit",
+    "clean": "rm -rf dist",
+    "install-browser": "npx playwright install chromium --with-deps"
+  }
+}

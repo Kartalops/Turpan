@@ -1,0 +1,70 @@
+{
+  "name": "diff-changes-api-contract-no-client-update",
+  "description": "API route signature changed (GET→POST, new required param) — no client files changed at all",
+  "diffResult": {
+    "baseRef": "main",
+    "targetRef": "feature/api-break",
+    "files": [
+      {
+        "path": "src/api/users/route.ts",
+        "changeType": "modified",
+        "linesAdded": 5,
+        "linesDeleted": 5,
+        "binary": false
+      },
+      {
+        "path": "src/components/UserList.tsx",
+        "changeType": "modified",
+        "linesAdded": 3,
+        "linesDeleted": 3,
+        "binary": false
+      }
+    ],
+    "hunks": [
+      {
+        "filePath": "src/api/users/route.ts",
+        "hunkIndex": 0,
+        "oldStart": 1,
+        "oldLines": 5,
+        "newStart": 1,
+        "newLines": 5,
+        "lines": [
+          { "type": "deleted", "content": "router.get('/api/users', async (req, res) => {", "oldLineNum": 1 },
+          { "type": "added", "content": "router.get('/api/users') → router.post('/api/users', async (req, res) => {", "newLineNum": 1 },
+          { "type": "deleted", "content": "  const { id } = req.query;", "oldLineNum": 2 },
+          { "type": "added", "content": "  const { id, role } = req.body;", "newLineNum": 2 }
+        ]
+      },
+      {
+        "filePath": "src/components/UserList.tsx",
+        "hunkIndex": 0,
+        "oldStart": 10,
+        "oldLines": 3,
+        "newStart": 10,
+        "newLines": 3,
+        "lines": [
+          { "type": "deleted", "content": "const name = 'User List Component';", "oldLineNum": 10 },
+          { "type": "added", "content": "const name = 'User List';", "newLineNum": 10 }
+        ]
+      }
+    ],
+    "stats": { "totalFiles": 2, "filesAdded": 0, "filesModified": 2, "filesDeleted": 0, "filesRenamed": 0, "totalLinesAdded": 8, "totalLinesDeleted": 8, "totalAdditions": 8, "totalDeletions": 8 },
+    "ownership": [
+      { "file": "src/api/users/route.ts", "ownership": "backend", "confidence": 85 },
+      { "file": "src/components/UserList.tsx", "ownership": "frontend", "confidence": 90 }
+    ],
+    "changedRoutes": [],
+    "changedApis": [{ "path": "/users", "file": "src/api/users/route.ts", "changeType": "modified" }],
+    "changedComponents": [{ "name": "UserList", "file": "src/components/UserList.tsx", "changeType": "modified" }],
+    "riskLevel": { "level": "high", "reasons": ["Breaking API contract change"], "files": ["src/api/users/route.ts"] },
+    "hasWorkingTreeChanges": false
+  },
+  "expectedFindings": [
+    {
+      "severity": "high",
+      "category": "correctness",
+      "pattern": "api-contract-change-no-client",
+      "file": "src/api/users/route.ts"
+    }
+  ]
+}

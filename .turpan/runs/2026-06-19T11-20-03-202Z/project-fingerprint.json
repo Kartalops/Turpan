@@ -1,0 +1,57 @@
+{
+  "projectRoot": "/home/oguz/Masaüstü/TurPAN-Review-Agent",
+  "projectName": "turpan",
+  "repositoryStatus": {
+    "isGitRepo": false
+  },
+  "packageManager": "pnpm",
+  "lockFile": "pnpm-lock.yaml",
+  "languages": [
+    "TypeScript"
+  ],
+  "runtimeType": "node",
+  "appType": "unknown",
+  "uiFramework": "unknown",
+  "backendFramework": "unknown",
+  "testTools": [
+    "vitest"
+  ],
+  "buildCommands": [
+    "build"
+  ],
+  "devCommands": [],
+  "lintCommands": [
+    "lint"
+  ],
+  "typecheckCommands": [],
+  "testCommands": [
+    "test"
+  ],
+  "packageScripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "clean": "pnpm -r run clean"
+  },
+  "dockerAvailable": false,
+  "dockerComposeAvailable": false,
+  "envFiles": [],
+  "envRequirements": [],
+  "routeHints": [],
+  "entrypoints": [],
+  "databaseHints": [],
+  "authHints": [],
+  "deploymentHints": {
+    "dockerfile": false,
+    "dockerCompose": false,
+    "hasBuildScript": true
+  },
+  "detectedFiles": [
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+    "turpan.yml"
+  ],
+  "missingFiles": [],
+  "fingerprintedAt": "2026-06-20T09:57:24.047Z"
+}

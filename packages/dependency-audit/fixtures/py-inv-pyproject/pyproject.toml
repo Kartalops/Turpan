@@ -1,0 +1,5 @@
+[project]
+name = "py-inv-pyproject"
+dependencies = [
+  "flask==2.0.0",
+]

@@ -1,0 +1,12 @@
+{
+  "fixture": "python-bot-hardcoded-token",
+  "description": "Telegram bot with hardcoded token in source code",
+  "expected": {
+    "verdict": ["NO_GO"],
+    "mustDetect": ["token", "secret", "hardcoded"],
+    "categories": {
+      "security": { "min": 1 }
+    },
+    "criticalFindings": { "min": 1 }
+  }
+}

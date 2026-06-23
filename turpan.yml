@@ -1,0 +1,115 @@
+# Turpan Configuration — https://github.com/turpan/turpan
+
+version: 0.1.0
+projectPath: /home/oguz/Masaüstü/TurPAN-Review-Agent
+runPath: /home/oguz/Masaüstü/TurPAN-Review-Agent/.turpan/runs
+deepAnalysis: false
+uiAnalysis: false
+fixMode: false
+logLevel: info
+
+# Project metadata (overrides auto-detection)
+project:
+  name: turpan
+
+# Command overrides — Turpan prefers these over auto-detected scripts
+# Leave empty to auto-detect from package.json / pyproject.toml
+commands:
+  install: pnpm install
+  build: pnpm build
+  test: pnpm test
+  lint: pnpm lint
+  typecheck: pnpm exec tsc --noEmit
+  dev: pnpm dev
+
+# UI testing configuration
+ui:
+  enabled: false
+  baseUrl: ""
+  scenarios: []
+  viewports: [desktop, mobile]
+  # Test user for authenticated scenario testing
+  # Credentials are NEVER real — always seeded/isolated test accounts
+  testUser:
+    enabled: false
+    email: "turpan-test@example.com"
+    password: "TurpanTest123!"
+    seedCommand: ""
+    loginPath: "/login"
+    dashboardPath: "/dashboard"
+  # Billing test mode — when true, calls local test checkout endpoint only
+  billing:
+    testMode: false
+    checkoutEndpoint: ""
+
+# Fix engine configuration
+# mode: report-only (default, safe), patch-only, apply, auto-safe
+fix:
+  mode: report-only
+  maxFilesChanged: 5
+  allowDependencyChanges: false
+  allowFileDeletion: false
+
+# Security configuration
+security:
+  redactSecrets: true
+  # Plugin sandboxing and trust configuration
+  plugins:
+    # Allow loading external plugins from node_modules or .turpan/plugins/
+    allowExternal: false
+    # Run external plugins in sandboxed worker threads
+    sandboxExternal: true
+    # Sandbox mode: 'worker' (default, fast) or 'process' (OS-level isolation, slower but stronger)
+    sandboxMode: worker
+    # Process sandbox configuration (only used when sandboxMode: process)
+    processSandbox:
+      enabled: false
+      memoryLimitMb: 256
+      timeoutMs: 30000
+      allowNetwork: false
+      allowCommands: false
+    # Max runtime in ms for any plugin operation (default: 30000)
+    maxPluginRuntimeMs: 30000
+    # Memory cap in MB for sandboxed plugins (soft limit, default: 256)
+    memoryCapMb: 256
+    # Permissions granted to local-trusted plugins by default
+    localTrustedPermissions:
+      - read-project-files
+      - read-package-metadata
+      - run-analysis-only
+      - propose-fixes
+      - ui-scenarios
+      - read-config
+    # Permissions granted to external-untrusted plugins by default
+    externalUntrustedPermissions:
+      - read-package-metadata
+      - run-analysis-only
+    # Per-plugin trust overrides (optional)
+    # Uncomment and configure to override trust for specific plugins
+    # pluginTrust:
+    #   my-plugin:
+    #     level: local-trusted  # builtin | local-trusted | external-untrusted
+    #     permissions:
+    #       - read-package-metadata
+    #       - run-analysis-only
+
+# Dependency audit configuration
+dependencyAudit:
+  enabled: false
+  online: false
+  failOnCritical: true
+  licensePolicy:
+    disallowed:
+      - GPL-3.0
+      - AGPL-3.0
+    warnUnknown: true
+
+# Plugin configuration — specify which plugins to enable for this project.
+# Available built-in plugins: next, vite, python, saas, mcp, security-basic
+# Leave empty to auto-detect based on project fingerprint.
+plugins: []
+
+# Ignore paths and globs — files/dirs to skip during analysis
+ignore:
+  paths: []
+  globs: []

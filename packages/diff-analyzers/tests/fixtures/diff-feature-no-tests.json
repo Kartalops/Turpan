@@ -1,0 +1,58 @@
+{
+  "name": "diff-feature-no-tests",
+  "description": "5 feature source files changed but no test files modified",
+  "diffResult": {
+    "baseRef": "main",
+    "targetRef": "feature/new-billing",
+    "files": [
+      { "path": "src/lib/billing/stripe.ts", "changeType": "added", "linesAdded": 30, "linesDeleted": 0, "binary": false },
+      { "path": "src/lib/billing/invoice.ts", "changeType": "added", "linesAdded": 25, "linesDeleted": 0, "binary": false },
+      { "path": "src/lib/billing/subscription.ts", "changeType": "added", "linesAdded": 20, "linesDeleted": 0, "binary": false },
+      { "path": "src/app/billing/page.tsx", "changeType": "added", "linesAdded": 40, "linesDeleted": 0, "binary": false },
+      { "path": "src/components/BillingForm.tsx", "changeType": "added", "linesAdded": 15, "linesDeleted": 0, "binary": false }
+    ],
+    "hunks": [
+      {
+        "filePath": "src/lib/billing/stripe.ts",
+        "hunkIndex": 0,
+        "oldStart": 0,
+        "oldLines": 0,
+        "newStart": 1,
+        "newLines": 30,
+        "lines": [
+          { "type": "added", "content": "export async function createSubscription(planId: string) {", "newLineNum": 1 },
+          { "type": "added", "content": "  // implementation", "newLineNum": 2 }
+        ]
+      }
+    ],
+    "stats": { "totalFiles": 5, "filesAdded": 5, "filesModified": 0, "filesDeleted": 0, "filesRenamed": 0, "totalLinesAdded": 130, "totalLinesDeleted": 0, "totalAdditions": 130, "totalDeletions": 0 },
+    "ownership": [
+      { "file": "src/lib/billing/stripe.ts", "ownership": "backend", "confidence": 80 },
+      { "file": "src/lib/billing/invoice.ts", "ownership": "backend", "confidence": 80 },
+      { "file": "src/lib/billing/subscription.ts", "ownership": "backend", "confidence": 80 },
+      { "file": "src/app/billing/page.tsx", "ownership": "frontend", "confidence": 90 },
+      { "file": "src/components/BillingForm.tsx", "ownership": "frontend", "confidence": 90 }
+    ],
+    "changedRoutes": [{ "route": "/billing", "file": "src/app/billing/page.tsx", "changeType": "added" }],
+    "changedApis": [],
+    "changedComponents": [
+      { "name": "BillingForm", "file": "src/components/BillingForm.tsx", "changeType": "added" }
+    ],
+    "riskLevel": { "level": "medium", "reasons": [], "files": [] },
+    "hasWorkingTreeChanges": false
+  },
+  "expectedFindings": [
+    {
+      "severity": "high",
+      "category": "test-coverage",
+      "pattern": "critical-feature-no-test",
+      "file": "src/lib/billing/stripe.ts"
+    },
+    {
+      "severity": "medium",
+      "category": "test-coverage",
+      "pattern": "missing-test",
+      "file": "src/lib/billing/invoice.ts"
+    }
+  ]
+}

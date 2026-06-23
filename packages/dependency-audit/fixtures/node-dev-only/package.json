@@ -1,0 +1,8 @@
+{
+  "name": "node-dev-only",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "some-dev": "1.0.0"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "@turpan/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Interactive review and fix agent CLI",
+  "license": "MIT",
+  "bin": {
+    "turpan": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "code-review",
+    "static-analysis",
+    "security",
+    "saas",
+    "nextjs",
+    "vite",
+    "python",
+    "mcp"
+  ],
+  "dependencies": {
+    "@turpan/analyzers": "workspace:*",
+    "@turpan/core": "workspace:*",
+    "@turpan/dependency-audit": "workspace:*",
+    "@turpan/fix-engine": "workspace:*",
+    "@turpan/git-diff": "workspace:*",
+    "@turpan/mcp-server": "workspace:*",
+    "@turpan/report": "workspace:*",
+    "@turpan/shared": "workspace:*",
+    "@turpan/ui-runner": "workspace:*",
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0",
+    "inquirer": "^9.2.16",
+    "ora": "^8.0.1",
+    "picocolors": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "scripts": {
+    "build": "npx tsup",
+    "dev": "npx tsup --watch",
+    "test": "npx vitest run",
+    "lint": "npx tsc --noEmit",
+    "clean": "rm -rf dist"
+  }
+}

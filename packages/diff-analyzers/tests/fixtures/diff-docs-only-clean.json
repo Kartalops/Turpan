@@ -1,0 +1,39 @@
+{
+  "name": "diff-docs-only-clean",
+  "description": "Only docs files changed — should skip test coverage checks",
+  "diffResult": {
+    "baseRef": "main",
+    "targetRef": "feature/docs-update",
+    "files": [
+      { "path": "README.md", "changeType": "modified", "linesAdded": 10, "linesDeleted": 3, "binary": false },
+      { "path": "docs/API.md", "changeType": "added", "linesAdded": 50, "linesDeleted": 0, "binary": false },
+      { "path": "CHANGELOG.md", "changeType": "modified", "linesAdded": 5, "linesDeleted": 1, "binary": false }
+    ],
+    "hunks": [
+      {
+        "filePath": "docs/API.md",
+        "hunkIndex": 0,
+        "oldStart": 0,
+        "oldLines": 0,
+        "newStart": 1,
+        "newLines": 50,
+        "lines": [
+          { "type": "added", "content": "# API Documentation", "newLineNum": 1 },
+          { "type": "added", "content": "## Endpoints", "newLineNum": 2 }
+        ]
+      }
+    ],
+    "stats": { "totalFiles": 3, "filesAdded": 1, "filesModified": 2, "filesDeleted": 0, "filesRenamed": 0, "totalLinesAdded": 65, "totalLinesDeleted": 4, "totalAdditions": 65, "totalDeletions": 4 },
+    "ownership": [
+      { "file": "README.md", "ownership": "docs", "confidence": 85 },
+      { "file": "docs/API.md", "ownership": "docs", "confidence": 90 },
+      { "file": "CHANGELOG.md", "ownership": "docs", "confidence": 85 }
+    ],
+    "changedRoutes": [],
+    "changedApis": [],
+    "changedComponents": [],
+    "riskLevel": { "level": "low", "reasons": [], "files": [] },
+    "hasWorkingTreeChanges": false
+  },
+  "expectedFindings": []
+}

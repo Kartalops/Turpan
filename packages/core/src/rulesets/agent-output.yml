@@ -1,0 +1,78 @@
+# Agent Output Audit Ruleset — rules for reviewing AI/agent-generated code
+
+extends: default
+
+rules:
+  # ── Completeness ───────────────────────────────────────────────────────────
+  no-fake-implementation:
+    severity: critical
+    description: "Code must have real implementation, not just placeholder comments or TODO stubs"
+    patterns:
+      - "// TODO\\s*implement"
+      - "// FIXME"
+      - "// NOT IMPLEMENTED"
+      - "throw new Error\\(['\"]Not yet implemented"
+    languages: [typescript, javascript, python, go]
+
+  no-passing-tests:
+    severity: high
+    description: "Tests must actually test something — avoid empty it() blocks or tests with no assertions"
+    patterns:
+      - "it\\(['\"].*['\"].*\\{\\s*\\}"
+      - "test\\(['\"].*['\"].*\\{\\s*\\}"
+      - "def test_.*:\\s*pass$"
+    languages: [typescript, javascript, python]
+
+  # ── Auth ─────────────────────────────────────────────────────────────────
+  agent-auth-not-faked:
+    severity: critical
+    description: "Auth implementation must be real, not a hardcoded always-allow middleware"
+    patterns:
+      - "// auth.*always.*allow"
+      - "return True  # auth"
+      - "return true // auth"
+    languages: [typescript, javascript, python, go]
+
+  # ── Error Handling ──────────────────────────────────────────────────────────
+  no-empty-catch:
+    severity: high
+    description: "Empty catch blocks silently swallow errors — add logging or re-throw"
+    patterns:
+      - "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+      - "except.*:\\s*pass\\s*$"
+    languages: [typescript, javascript, python, go]
+
+  # ── Dependencies ─────────────────────────────────────────────────────────────
+  no-undeclared-deps:
+    severity: medium
+    description: "All imported packages must be in package.json / requirements.txt"
+    patterns:
+      - "from\\s+\\w+\\s+import"
+      - "import\\s+[a-z]"
+    languages: [typescript, javascript, python]
+
+  # ── Type Safety ─────────────────────────────────────────────────────────────
+  no-implicit-any:
+    severity: medium
+    description: "Avoid implicit 'any' — every function parameter needs a type"
+    patterns:
+      - ":\\s*any\\b"
+    languages: [typescript]
+
+  # ── Test Coverage ─────────────────────────────────────────────────────────────
+  test-has-assertions:
+    severity: medium
+    description: "Tests must have assertions, not just call the function"
+    patterns:
+      - "expect\\("
+      - "assert\\."
+      - "should\\."
+    languages: [typescript, javascript, python]
+
+  # ── README ──────────────────────────────────────────────────────────────────
+  no-readme-mismatch:
+    severity: medium
+    description: "README.md features must match actual implemented code"
+    patterns:
+      - "README.md"
+    languages: [markdown]

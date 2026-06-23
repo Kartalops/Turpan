@@ -1,0 +1,81 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-22T14-02-20-994Z",
+  "timestamp": "2026-06-22T14:02:21.926Z",
+  "overall": 91,
+  "verdict": "NO_GO",
+  "dimensions": {
+    "overall": 91,
+    "buildHealth": {
+      "label": "Build Health",
+      "score": 91,
+      "details": []
+    },
+    "testHealth": {
+      "label": "Test Health",
+      "score": 95,
+      "details": []
+    },
+    "codeQuality": {
+      "label": "Code Quality",
+      "score": 100,
+      "details": []
+    },
+    "security": {
+      "label": "Security",
+      "score": 100,
+      "details": []
+    },
+    "uiRuntime": {
+      "label": "UI Runtime",
+      "score": 91,
+      "details": []
+    },
+    "uiQuality": {
+      "label": "UI Quality",
+      "score": 91,
+      "details": []
+    },
+    "architecture": {
+      "label": "Architecture",
+      "score": 100,
+      "details": []
+    },
+    "deadCode": {
+      "label": "Dead Code",
+      "score": 100,
+      "details": []
+    },
+    "agentOutput": {
+      "label": "Agent Output",
+      "score": 91,
+      "details": []
+    },
+    "releaseReadiness": {
+      "label": "Release Readiness",
+      "score": 62,
+      "details": []
+    }
+  },
+  "findingsSummary": {
+    "critical": 1,
+    "high": 1,
+    "medium": 2,
+    "low": 0,
+    "info": 1,
+    "total": 5
+  },
+  "raw": {
+    "overall": 91,
+    "categories": {
+      "correctness": 91,
+      "security": 100,
+      "performance": 100,
+      "maintainability": 100,
+      "codeCoverage": 95
+    },
+    "findingsCount": 5,
+    "criticalIssues": 1,
+    "project_readiness": 55
+  }
+}

@@ -1,0 +1,45 @@
+# Turpan root workspace — not published as a single package
+# Each app and package is published separately to npm
+
+# Source files
+src/
+apps/*/src/
+packages/*/src/
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/__tests__/
+**/tests/
+
+# Config and dev files
+tsconfig.json
+vitest.config.ts
+.eslintrc*
+.prettierrc*
+*.config.ts
+*.config.js
+
+# Phase and development reports
+PHASE_*.md
+FINAL_*.md
+PUBLIC_ALPHA_*.md
+
+# Turpan run outputs
+.turpan/
+
+# Examples and docs
+examples/
+docs/
+
+# GitHub
+.github/
+
+# Node
+node_modules/
+
+# Build outputs are published via "files" in each package
+# but we exclude them from the root
+dist/

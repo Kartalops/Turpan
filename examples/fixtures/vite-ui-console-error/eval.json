@@ -1,0 +1,8 @@
+{
+  "fixture": "vite-ui-console-error",
+  "description": "Vite React app with intentional runtime ReferenceError and console.error",
+  "expected": {
+    "verdict": ["GO", "CONDITIONAL_GO", "NO_GO"],
+    "mustDetect": ["reference", "error", "console", "notDefinedFunction", "useffect", "console.error"]
+  }
+}

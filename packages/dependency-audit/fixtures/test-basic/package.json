@@ -1,0 +1,10 @@
+{
+  "name": "test-basic",
+  "version": "1.0.0",
+  "dependencies": {
+    "chalk": "^4.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  }
+}

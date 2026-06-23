@@ -1,0 +1,10 @@
+{
+  "fixture": "next-saas-settings-noop-save",
+  "description": "Settings save button is a no-op — no handler wired",
+  "tags": ["settings", "noop-button", "ui"],
+  "expected": {
+    "mode": "soft",
+    "verdict": ["WARN"],
+    "criticalFindings": { "max": 0 }
+  }
+}

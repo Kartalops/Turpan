@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "runId": "2026-06-20T11-24-50-908Z",
+  "runPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/python-bot-hardcoded-token/.turpan/runs/2026-06-20T11-24-50-908Z",
+  "timestamp": "2026-06-20T11:24:50.973Z",
+  "duration": 0,
+  "projectPath": "/home/oguz/Masaüstü/TurPAN-Review-Agent/examples/fixtures/python-bot-hardcoded-token",
+  "verdict": "NO_GO",
+  "overallScore": 94,
+  "findings": {
+    "critical": 1,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 1,
+    "total": 2
+  },
+  "scorecard": {
+    "overall": 94,
+    "categories": {
+      "correctness": 94,
+      "security": 80,
+      "performance": 100,
+      "maintainability": 100,
+      "codeCoverage": 100
+    },
+    "findingsCount": 2,
+    "criticalIssues": 1,
+    "project_readiness": 70
+  },
+  "fingerprint": {},
+  "hasFixResult": false,
+  "hasUiReview": false,
+  "hasSecurity": false,
+  "hasAgentAudit": false,
+  "nextActions": [
+    {
+      "priority": "critical",
+      "action": "Resolve critical findings before any release",
+      "reason": "1 critical severity finding detected"
+    }
+  ]
+}

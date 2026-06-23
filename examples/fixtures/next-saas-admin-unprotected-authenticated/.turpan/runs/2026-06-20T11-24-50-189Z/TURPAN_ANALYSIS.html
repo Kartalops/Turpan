@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turpan Analysis — 2026-06-20T11-24-50-189Z</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --critical: #f85149; --high: #f0883e; --medium: #d29922;
+    --low: #3fb950; --info: #58a6ff;
+    --accent: #238636;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font: 14px/1.6 var(--font); padding: 2rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .header h1 { font-size: 1.6rem; letter-spacing: -0.02em; }
+  .run-id { color: var(--muted); font-family: var(--mono); font-size: 0.8rem; }
+
+  /* ── Verdict banner ── */
+  .verdict {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 1rem; border-radius: 6px; font-weight: 700; font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+  .verdict.GO        { background: #23863622; color: #3fb950; border: 1px solid #3fb95055; }
+  .verdict.CONDITIONAL_GO { background: #d2992222; color: #f0883e; border: 1px solid #f0883e55; }
+  .verdict.NO_GO     { background: #f8514922; color: #f85149; border: 1px solid #f8514955; }
+  .verdict.INTERNAL_ONLY { background: #58a6ff22; color: #58a6ff; border: 1px solid #58a6ff55; }
+
+  /* ── Sections ── */
+  h2 { font-size: 1.1rem; color: var(--text); margin: 2rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 0.95rem; color: var(--muted); margin: 1.2rem 0 0.4rem; }
+  p, li { color: var(--text); }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+  th { text-align: left; padding: 0.4rem 0.75rem; background: var(--surface); color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+  td { padding: 0.4rem 0.75rem; border-bottom: 1px solid #21262d; vertical-align: top; }
+  tr:hover td { background: #161b22; }
+
+  /* ── Scorecard grid ── */
+  .scorecard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+  .scorecard-cell {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.75rem; text-align: center;
+  }
+  .scorecell-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .scorecell-value { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
+  .scorecell-max   { font-size: 0.75rem; color: var(--muted); }
+  .scorecell-bar   { height: 4px; background: #30363d; border-radius: 2px; margin-top: 0.4rem; overflow: hidden; }
+  .scorecell-fill  { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+  /* ── Severity counts ── */
+  .severity-row { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
+  .sev-chip { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+  .sev-critical { background: #f8514922; color: var(--critical); }
+  .sev-high     { background: #f0883e22; color: var(--high); }
+  .sev-medium   { background: #d2992222; color: var(--medium); }
+  .sev-low      { background: #3fb95022; color: var(--low); }
+  .sev-info     { background: #58a6ff22; color: var(--info); }
+
+  /* ── Findings ── */
+  .finding { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin: 0.5rem 0; }
+  .finding-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .finding-sev { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .finding-title { font-weight: 600; font-size: 0.9rem; }
+  .finding-meta { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); }
+  .finding-body { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
+  .finding-file { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .evidence-item { background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 0.3rem 0.5rem; margin: 0.2rem 0; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .fix-tag { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
+  .fix-safe { background: #23863622; color: #3fb950; }
+  .fix-risky { background: #f8514922; color: #f85149; }
+  .fix-defer { background: #d2992222; color: #d29922; }
+
+  /* ── Filter chips ── */
+  .filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0; }
+  .filter-chip {
+    padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.78rem; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--text); color: var(--text); }
+  .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ── Screenshots gallery ── */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
+  .gallery-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .gallery-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: #000; }
+  .gallery-caption { padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--muted); font-family: var(--mono); }
+
+  /* ── Collapsible evidence ── */
+  .collapsible { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; margin: 0.3rem 0; overflow: hidden; }
+  .collapsible-header { padding: 0.5rem 0.75rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--muted); user-select: none; }
+  .collapsible-header:hover { background: #1c2128; color: var(--text); }
+  .collapsible-header::after { content: '▶'; font-size: 0.6rem; transition: transform 0.2s; }
+  .collapsible.open .collapsible-header::after { transform: rotate(90deg); }
+  .collapsible-body { display: none; padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); background: #0d1117; border-top: 1px solid var(--border); white-space: pre-wrap; word-break: break-all; }
+  .collapsible.open .collapsible-body { display: block; }
+
+  /* ── Fix plan ── */
+  .fix-applied  { color: #3fb950; }
+  .fix-rejected { color: #f85149; }
+  .fix-deferred { color: #d29922; }
+
+  /* ── Validation ── */
+  .val-pass { color: #3fb950; }
+  .val-fail { color: #f85149; }
+
+  /* ── Agent audit bars ── */
+  .audit-bar { display: flex; gap: 0.3rem; align-items: center; margin: 0.2rem 0; }
+  .audit-pct { font-size: 0.8rem; font-weight: 700; min-width: 3ch; text-align: right; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.75rem; text-align: center; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .scorecard-grid { grid-template-columns: repeat(2, 1fr); }
+    .gallery { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ── Header ── -->
+<div class="header">
+  <h1>🏛️ Turpan Analysis</h1>
+  <span class="run-id">2026-06-20T11-24-50-189Z</span>
+</div>
+
+<!-- ── Verdict ── -->
+<div class="verdict GO">
+  ✅ GO
+</div>
+
+<!-- ── Executive Summary ── -->
+<h2>Executive Summary</h2>
+<ul>
+  <li>✅ <strong>GO</strong> — score 100/100</li>
+  <li>Overall score: <strong>100/100</strong></li>
+  <li>Build health: <strong>100/100</strong></li>
+  <li>Security: <strong>100/100</strong></li>
+</ul>
+
+<!-- ── Scorecard ── -->
+<h2>Scorecard</h2>
+<div class="scorecard-grid">
+<div class="scorecard-cell">
+  <div class="scorecell-label">Overall</div>
+  <div class="scorecell-value" style="color: hsl(120,70%,55%)">100</div>
+  <div class="scorecell-max">/100</div>
+  <div class="scorecell-bar"><div class="scorecell-fill" style="width:100%;background:hsl(120,70%,55%)"></div></div>
+</div>
+<div class="scorecard-cell">
+  <div class="scorecell-label">Build</div>
+  <div class="scorecell-value" style="color: hsl(120,70%,55%)">100</div>
+  <div class="scorecell-max">/100</div>
+  <div class="scorecell-bar"><div class="scorecell-fill" style="width:100%;background:hsl(120,70%,55%)"></div></div>
+</div>
+<div class="scorecard-cell">
+  <div class="scorecell-label">Test</div>
+  <div class="scorecell-value" style="color: hsl(120,70%,55%)">100</div>
+  <div class="scorecell-max">/100</div>
+  <div class="scorecell-bar"><div class="scorecell-fill" style="width:100%;background:hsl(120,70%,55%)"></div></div>
+</div>
+<div class="scorecard-cell">
+  <div class="scorecell-label">Quality</div>
+  <div class="scorecell-value" style="color: hsl(120,70%,55%)">100</div>
+  <div class="scorecell-max">/100</div>
+  <div class="scorecell-bar"><div class="scorecell-fill" style="width:100%;background:hsl(120,70%,55%)"></div></div>
+</div>
+<div class="scorecard-cell">
+  <div class="scorecell-label">Security</div>
+  <div class="scorecell-value" style="color: hsl(120,70%,55%)">100</div>
+  <div class="scorecell-max">/100</div>
+  <div class="scorecell-bar"><div class="scorecell-fill" style="width:100%;background:hsl(120,70%,55%)"></div></div>
+</div>
+<div class="scorecard-cell">
+  <div class="scorecell-label">Performance</div>
+  <div class="scorecell-value" style="color: hsl(120,70%,55%)">100</div>
+  <div class="scorecell-max">/100</div>
+  <div class="scorecell-bar"><div class="scorecell-fill" style="width:100%;background:hsl(120,70%,55%)"></div></div>
+</div>
+</div>
+<div class="severity-row">
+  <span class="sev-chip sev-critical">🔴 0 Critical</span>
+  <span class="sev-chip sev-high">🟠 0 High</span>
+  <span class="sev-chip sev-medium">🟡 0 Medium</span>
+  <span class="sev-chip sev-low">🟢 0 Low</span>
+  <span class="sev-chip sev-info">🔵 1 Info</span>
+</div>
+
+<!-- ── Findings filter ── -->
+<h2>Findings</h2>
+<div class="filters" id="severity-filters">
+  <span class="filter-chip active" data-sev="all">All</span>
+  <span class="filter-chip" data-sev="critical">Critical</span>
+  <span class="filter-chip" data-sev="high">High</span>
+  <span class="filter-chip" data-sev="medium">Medium</span>
+  <span class="filter-chip" data-sev="low">Low</span>
+  <span class="filter-chip" data-sev="info">Info</span>
+</div>
+<div id="findings-list">
+<div class="finding" data-sev="info">
+  <div class="finding-header">
+    <span class="finding-sev" style="background:var(--info)"></span>
+    <span class="finding-title">Dependencies not installed — install required before review</span>
+  </div>
+  
+  <div class="finding-body">The node_modules directory is missing. Turpan cannot run build, test, lint, or typecheck without first installing dependencies. Run your package manager install command before re-running the review, or pass the --install flag to have Turpan install automatically (if configured).</div>
+  <div class="finding-body"><strong>Fix:</strong> Run: npm install</div>
+  <div style="margin-top:0.4rem"><div class="evidence-item">Missing node_modules: Directory not found — node_modules is missing</div></div>
+</div>
+</div>
+
+<!-- ── Live UI Review ── -->
+
+
+<!-- ── Code Quality ── -->
+
+
+<!-- ── Security ── -->
+
+
+<!-- ── Agent Output Audit ── -->
+
+
+<!-- ── Fix Plan ── -->
+
+
+<!-- ── Validation Results ── -->
+
+
+<!-- ── Evidence Index ── -->
+<h2>Evidence Index</h2>
+<p style="color:var(--muted);font-size:0.82rem">
+  Evidence files are indexed at
+  <code>.turpan/runs/&lt;runId&gt;/</code>.
+  Open the run directory to browse logs, screenshots, and traces.
+</p>
+
+<!-- ── Footer ── -->
+<div class="footer">
+  Generated by Turpan · 20.06.2026 14:24:50 · 0ms
+</div>
+</div>
+
+<script>
+// ── Filter chips ──
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const sev = chip.dataset.sev;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    document.querySelectorAll('.finding').forEach(f => {
+      f.style.display = (sev === 'all' || f.dataset.sev === sev) ? '' : 'none';
+    });
+  });
+});
+
+// ── Collapsibles ──
+document.querySelectorAll('.collapsible-header').forEach(h => {
+  h.addEventListener('click', () => {
+    h.parentElement?.classList.toggle('open');
+  });
+});
+</script>
+</body>
+</html>

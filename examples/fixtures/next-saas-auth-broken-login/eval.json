@@ -1,0 +1,11 @@
+{
+  "fixture": "next-saas-auth-broken-login",
+  "description": "Login form accepts any credentials without error feedback",
+  "tags": ["auth", "broken-login", "ui"],
+  "expected": {
+    "mode": "soft",
+    "verdict": ["WARN", "CONDITIONAL_GO"],
+    "criticalFindings": { "max": 0 },
+    "highFindings": { "max": 2 }
+  }
+}

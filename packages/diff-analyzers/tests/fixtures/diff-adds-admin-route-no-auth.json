@@ -1,0 +1,51 @@
+{
+  "name": "diff-adds-admin-route-no-auth",
+  "description": "New admin API route added without any auth middleware",
+  "diffResult": {
+    "baseRef": "main",
+    "targetRef": "feature/admin-api",
+    "files": [
+      {
+        "path": "src/api/admin/users.ts",
+        "changeType": "added",
+        "linesAdded": 25,
+        "linesDeleted": 0,
+        "binary": false
+      }
+    ],
+    "hunks": [
+      {
+        "filePath": "src/api/admin/users.ts",
+        "hunkIndex": 0,
+        "oldStart": 0,
+        "oldLines": 0,
+        "newStart": 1,
+        "newLines": 25,
+        "lines": [
+          { "type": "added", "content": "import express from 'express';", "newLineNum": 1 },
+          { "type": "added", "content": "const router = express.Router();", "newLineNum": 2 },
+          { "type": "added", "content": "router.get('/api/admin/users', async (req, res) => {", "newLineNum": 3 },
+          { "type": "added", "content": "  const users = await db.query('SELECT * FROM users');", "newLineNum": 4 },
+          { "type": "added", "content": "  res.json(users);", "newLineNum": 5 },
+          { "type": "added", "content": "});", "newLineNum": 6 },
+          { "type": "added", "content": "export default router;", "newLineNum": 7 }
+        ]
+      }
+    ],
+    "stats": { "totalFiles": 1, "filesAdded": 1, "filesModified": 0, "filesDeleted": 0, "filesRenamed": 0, "totalLinesAdded": 25, "totalLinesDeleted": 0, "totalAdditions": 25, "totalDeletions": 0 },
+    "ownership": [{ "file": "src/api/admin/users.ts", "ownership": "backend", "confidence": 85 }],
+    "changedRoutes": [],
+    "changedApis": [{ "path": "/admin/users", "file": "src/api/admin/users.ts", "changeType": "added" }],
+    "changedComponents": [],
+    "riskLevel": { "level": "high", "reasons": ["Admin route added without auth check"], "files": ["src/api/admin/users.ts"] },
+    "hasWorkingTreeChanges": false
+  },
+  "expectedFindings": [
+    {
+      "severity": "high",
+      "category": "security",
+      "pattern": "admin-route-no-auth",
+      "file": "src/api/admin/users.ts"
+    }
+  ]
+}
