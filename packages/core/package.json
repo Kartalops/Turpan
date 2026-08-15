@@ -30,13 +30,12 @@
     "@turpan/shared": "workspace:*"
   },
   "devDependencies": {
-    "@turpan/ui-runner": "workspace:*",
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "test": "npx vitest run",
     "lint": "npx tsc --noEmit",
     "clean": "rm -rf dist"

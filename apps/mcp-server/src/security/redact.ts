@@ -10,7 +10,7 @@
 
 import { PathTraversalError, WorkspaceViolationError, InvalidPathError } from './workspace.js';
 
-const SECRET_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
+const SECRET_PATTERNS: Array<[RegExp, string]> = [
   // AWS access key (AKIA + 16 chars)
   [/\bAKIA[0-9A-Z]{16}\b/g, 'AKIA***[REDACTED]'],
   // GitHub token (ghp_ / gho_ / ghs_ / ghr_ prefix)
@@ -42,7 +42,7 @@ const SENSITIVE_ENV_VARS = new Set([
 export function redactSecrets(input: string): string {
   if (!input || typeof input !== 'string') return input ?? '';
   let result = input;
-  for (const { pattern, label } of SECRET_PATTERNS) {
+  for (const [pattern, label] of SECRET_PATTERNS) {
     result = result.replace(pattern, label);
   }
   // Redact env var values for sensitive names

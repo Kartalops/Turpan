@@ -21,7 +21,7 @@ export class DuplicateCodeAnalyzer implements Analyzer {
   categories = ['maintainability'];
 
   supports(fp: ProjectFingerprint): boolean {
-    return fp.languages.includes('typescript') || fp.languages.includes('javascript');
+    return fp.languages.some(language => ['typescript', 'javascript'].includes(language.toLowerCase()));
   }
 
   async run(ctx: AnalyzerContext): Promise<AnalyzerResult> {

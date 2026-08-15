@@ -25,9 +25,7 @@ export class WorkerRuntimeAnalyzer {
         const allDeps = [
             ...Object.keys(fp).filter(k => k.toLowerCase().includes('depend')),
         ];
-        return (fp.languages.includes('python') ||
-            fp.languages.includes('javascript') ||
-            fp.languages.includes('typescript'));
+        return (fp.languages.some(language => ['python', 'javascript', 'typescript'].includes(language.toLowerCase())));
     }
     async run(ctx) {
         const errors = [];

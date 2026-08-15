@@ -36,4 +36,14 @@ export { rollback, saveRollbackRecord, getCurrentCommitHash, getBackupDir, listB
 export type { RollbackOptions, RollbackOutcome } from './RollbackManager.js';
 export { writeFixReport, renderFixPlanReport, renderFixResultReport } from './reportWriter.js';
 export type { ReportPaths } from './reportWriter.js';
+export * from './autofixTypes.js';
+export { classifyFixEligibility } from './FixEligibility.js';
+export { checkPatchBudget, summarizeUnifiedDiff } from './PatchBudget.js';
+export { selectImpactedTests } from './TestSelector.js';
+export { assessRegressionTest } from './RegressionTestGuard.js';
+export { adversarialPatchReview } from './PatchReviewer.js';
+export { scorePatchExperiment, chooseSmallestProvenPatch } from './PatchScorer.js';
+export { GitWorktreeManager, runPatchExperiment, } from './WorktreeExperiment.js';
+export type { ExperimentCommandResult, ExperimentRunner, PatchExperimentOptions, WorktreeManager, } from './WorktreeExperiment.js';
+export { buildPatchEvidenceReport } from './PatchEvidenceReport.js';
 //# sourceMappingURL=index.d.ts.map

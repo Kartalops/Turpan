@@ -348,7 +348,7 @@ function autoDetectPlugins(
   if (fingerprint.appType === 'vite-react' || fingerprint.uiFramework === 'react') {
     if (availableIds.includes('vite')) detected.push('vite');
   }
-  if (fingerprint.languages.includes('python') || fingerprint.appType === 'python-bot' || fingerprint.appType === 'fastapi') {
+  if (fingerprint.languages.some(language => language.toLowerCase() === 'python') || fingerprint.appType === 'python-bot' || fingerprint.appType === 'fastapi') {
     if (availableIds.includes('python')) detected.push('python');
   }
 
@@ -443,6 +443,5 @@ function getGrantedPermissions(
   }
   return security.externalUntrustedPermissions as PluginPermission[];
 }
-
 
 

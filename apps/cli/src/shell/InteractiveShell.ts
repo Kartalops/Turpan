@@ -31,8 +31,8 @@ export async function runInteractiveShell(config: InteractiveShellConfig): Promi
   const session = new ShellSession(
     {
       projectPath,
-      projectName: fingerprint.name ?? 'unknown',
-      projectType: fingerprint.framework ?? 'unknown',
+      projectName: fingerprint.projectName,
+      projectType: fingerprint.appType,
     },
     memory
   );
@@ -185,7 +185,7 @@ async function executeRoute(
       }
       return;
     }
-    if (intent === 'open_report' || intent === 'open') {
+    if (intent === 'open_report') {
       await openLatestReport(session, renderer);
       return;
     }
@@ -229,7 +229,18 @@ async function executeRoute(
       duration: result.durationMs,
     });
     session.commandMemory.setFindings(result.findings);
-    session.commandMemory.setScorecard(result.scorecard);
+    session.commandMemory.setScorecard({
+      overall: result.scorecard.overall,
+      categories: {
+        correctness: result.scorecard.overall,
+        security: result.scorecard.security,
+        performance: result.scorecard.ui_runtime,
+        maintainability: result.scorecard.architecture,
+        codeCoverage: result.scorecard.test_health,
+      },
+      findingsCount: result.findings.length,
+      criticalIssues: result.findings.filter(finding => finding.severity === 'critical').length,
+    });
     session.setProjectStarted(true);
 
     const mode: ShellMode = ShellSession.intentToMode(intent);
@@ -334,7 +345,6 @@ function buildTurpanConfig(
     skipTests: runOptions?.skipTests ?? false,
     skipLint: runOptions?.skipLint ?? false,
     skipTypecheck: runOptions?.skipTypecheck ?? false,
-    skipSecurity: runOptions?.skipSecurity ?? false,
     plugins,
     uiScenarios: scenarios,
     skipScenarios: false,

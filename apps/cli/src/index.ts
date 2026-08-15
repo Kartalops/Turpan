@@ -3,25 +3,18 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { resolve, join } from 'path';
-import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync } from 'fs';
-import { execSync } from 'child_process';
+import { join, resolve } from 'path';
+import { existsSync, writeFileSync, readFileSync, unlinkSync } from 'fs';
+import { execSync, spawn } from 'child_process';
 import { runAnalysis, planAnalysis, detectProject, loadConfig } from '@turpan/core';
 import { runUiTest } from '@turpan/ui-runner';
 import { runAgentOutputAudit } from '@turpan/analyzers';
 import { createRuntimeTestCommand, createFixCommand, createPluginsCommand, createScenariosCommand, createEvalCommand, createDependencyAuditCommand, createReviewDiffCommand } from './commands/index.js';
 import { runFixEngine, resolveFixMode } from './commands/fix.js';
-import { generateReports, deriveVerdict } from '@turpan/report';
+import { countFindingsBySeverity, deriveVerdict, generateReports, loadRunArtifacts } from '@turpan/report';
 import type { TurpanAnalysisData, DiffReview } from '@turpan/report';
 import { runInteractiveShell as runShell } from './shell/index.js';
-import { runMcpCommand } from '@turpan/mcp-server';
-
-// ============ INLINED SHARED UTILS (Phase 1 workaround) ============
-
-function resolveProjectPath(input?: string): string {
-  if (!input) return process.cwd();
-  return resolve(process.cwd(), input);
-}
+import { ensureDir, resolveProjectPath } from '@turpan/shared';
 
 // ============ CONFIG ============
 
@@ -120,6 +113,29 @@ function exitWithPolicy(failOn: FailOnLevel, critical: number, high: number): ne
   process.exit(0);
 }
 
+async function delegateMcpCommand(argv: string[]): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn('turpan-mcp', argv, {
+      stdio: 'inherit',
+      shell: false,
+      env: process.env,
+    });
+
+    child.on('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'ENOENT') {
+        reject(new Error('turpan-mcp binary not found. Install or link @turpan/mcp-server to use MCP commands.'));
+        return;
+      }
+      reject(error);
+    });
+    child.on('exit', (code, signal) => {
+      if (signal) reject(new Error(`turpan-mcp exited from signal ${signal}`));
+      else if (code && code !== 0) reject(new Error(`turpan-mcp exited with code ${code}`));
+      else resolve();
+    });
+  });
+}
+
 // ============ TERMINAL SUMMARY ============
 
 async function printTerminalSummary(
@@ -128,22 +144,13 @@ async function printTerminalSummary(
   diffReviewData?: DiffReview
 ): Promise<{ critical: number; high: number; medium: number; verdict: string }> {
   // Load existing run artifacts
-  const findingsPath  = join(runPath, 'TURPAN_FINDINGS.json');
-  const scorecardPath = join(runPath, 'TURPAN_SCORECARD.json');
   const fingerprintPath = join(runPath, 'project-fingerprint.json');
   const agentAuditSummaryPath = join(runPath, 'agent-audit-summary.json');
 
-  let findings: import('@turpan/core').Finding[] = [];
-  let scorecard: import('@turpan/shared').Scorecard = { overall: 0, categories: { correctness: 0, security: 0, performance: 0, maintainability: 0, codeCoverage: 0 }, findingsCount: 0, criticalIssues: 0 };
+  const { findings, scorecard } = loadRunArtifacts(runPath);
   let fingerprint: Record<string, unknown> = {};
   let agentAudit: import('@turpan/report').AgentOutputAudit | undefined;
 
-  if (existsSync(findingsPath)) {
-    try { findings = JSON.parse(readFileSync(findingsPath, 'utf-8')).findings ?? []; } catch {}
-  }
-  if (existsSync(scorecardPath)) {
-    try { scorecard = JSON.parse(readFileSync(scorecardPath, 'utf-8')); } catch {}
-  }
   if (existsSync(fingerprintPath)) {
     try { fingerprint = JSON.parse(readFileSync(fingerprintPath, 'utf-8')); } catch {}
   }
@@ -154,6 +161,7 @@ async function printTerminalSummary(
   // Build analysis data and generate full report bundle
   const runId = runPath.split('/').pop() ?? new Date().toISOString();
   const timestamp = new Date().toISOString();
+  const reportFindings = findings as unknown as TurpanAnalysisData['findings'];
 
   const analysisData: TurpanAnalysisData = {
     runId,
@@ -161,10 +169,10 @@ async function printTerminalSummary(
     timestamp,
     duration: 0,
     projectPath,
-    findings,
+    findings: reportFindings,
     scorecard,
     fingerprint,
-    verdict: deriveVerdict(scorecard, findings),
+    verdict: deriveVerdict(scorecard, reportFindings),
     agentAudit,
     diffReview: diffReviewData,
   };
@@ -179,9 +187,10 @@ async function printTerminalSummary(
   }
 
   // Counts
-  const critical = findings.filter(f => f.severity === 'critical').length;
-  const high     = findings.filter(f => f.severity === 'high').length;
-  const medium   = findings.filter(f => f.severity === 'medium').length;
+  const counts = countFindingsBySeverity(reportFindings);
+  const critical = counts.critical;
+  const high = counts.high;
+  const medium = counts.medium;
   const verdict  = analysisData.verdict;
 
   // Verdict color + label
@@ -226,14 +235,6 @@ async function printTerminalSummary(
   console.log();
 
   return { critical, high, medium, verdict };
-}
-
-// ============ HELPERS ============
-
-function ensureDir(dirPath: string): void {
-  if (!existsSync(dirPath)) {
-    mkdirSync(dirPath, { recursive: true });
-  }
 }
 
 // ============ COMMANDS ============
@@ -1103,21 +1104,21 @@ mcpCmd
   .description('Start the Turpan MCP server (stdio transport)')
   .allowUnknownOption(true)
   .action(async () => {
-    await runMcpCommand(['serve', ...process.argv.slice(3)]);
+    await delegateMcpCommand(['serve', ...process.argv.slice(3)]);
   });
 mcpCmd
   .command('config')
   .description('Show MCP server configuration')
   .allowUnknownOption(true)
   .action(async () => {
-    await runMcpCommand(['config', ...process.argv.slice(3)]);
+    await delegateMcpCommand(['config', ...process.argv.slice(3)]);
   });
 mcpCmd
   .command('status')
   .description('Check MCP server status')
   .allowUnknownOption(true)
   .action(async () => {
-    await runMcpCommand(['status', ...process.argv.slice(3)]);
+    await delegateMcpCommand(['status', ...process.argv.slice(3)]);
   });
 program.addCommand(mcpCmd);
 
@@ -1125,7 +1126,7 @@ program.addCommand(mcpCmd);
 program.action(async () => {
   // If user typed `turpan mcp` with no subcommand, fall through to MCP help
   if (process.argv.length >= 3 && process.argv[2] === 'mcp') {
-    await runMcpCommand(['--help']);
+    await delegateMcpCommand(['--help']);
     return;
   }
   await runShell({ projectPath: resolveProjectPath('.') });

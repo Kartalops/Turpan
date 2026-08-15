@@ -42,10 +42,6 @@ export function createEmptyScorecard(): Scorecard {
   };
 }
 
-export function createEmptyFindings(): Finding[] {
-  return [];
-}
-
 export function finalizeContext(ctx: RunContext, findings: Finding[], scorecard: Scorecard): AnalysisResult {
   return {
     config: ctx.config,

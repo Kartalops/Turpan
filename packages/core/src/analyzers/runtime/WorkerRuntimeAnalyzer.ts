@@ -33,9 +33,7 @@ export class WorkerRuntimeAnalyzer implements Analyzer {
       ...Object.keys(fp as unknown as Record<string, unknown>).filter(k => k.toLowerCase().includes('depend')),
     ];
     return (
-      fp.languages.includes('python') ||
-      fp.languages.includes('javascript') ||
-      fp.languages.includes('typescript')
+      fp.languages.some(language => ['python', 'javascript', 'typescript'].includes(language.toLowerCase()))
     );
   }
 

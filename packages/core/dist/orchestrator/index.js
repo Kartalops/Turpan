@@ -9,7 +9,7 @@ import { createRunContext } from '../context/index.js';
 import { writeReports } from '../reports/index.js';
 import { createLogger } from '../logger/index.js';
 import { loadConfig } from '../config/index.js';
-import { symlinkSync, existsSync, unlinkSync, mkdirSync } from 'fs';
+import { symlinkSync, existsSync, lstatSync, unlinkSync, mkdirSync } from 'fs';
 import { detectProjectAsync } from '../project/index.js';
 import { runReview, planReview } from './ReviewOrchestrator.js';
 import { formatPlanSummary } from './ReviewPlan.js';
@@ -131,12 +131,13 @@ export async function runAnalysis(options) {
     const runPath = createTimestampDir(baseRunPath);
     // Create latest symlink (best-effort; don't fail the run if it can't)
     const latestPath = `${baseRunPath}/latest`;
-    if (existsSync(latestPath)) {
-        try {
-            unlinkSync(latestPath);
-        }
-        catch { /* ignore */ }
+    // existsSync returns false for a broken symlink. Use lstat so an old
+    // `latest` link never prevents the current run from becoming discoverable.
+    try {
+        lstatSync(latestPath);
+        unlinkSync(latestPath);
     }
+    catch { /* no previous latest link */ }
     try {
         symlinkSync(runPath, latestPath, 'dir');
     }

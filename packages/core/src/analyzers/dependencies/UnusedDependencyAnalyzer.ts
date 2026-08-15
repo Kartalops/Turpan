@@ -38,8 +38,7 @@ export class UnusedDependencyAnalyzer implements Analyzer {
   supports(fp: ProjectFingerprint): boolean {
     return (
       fp.packageManager !== 'unknown' &&
-      fp.languages.includes('typescript') ||
-      fp.languages.includes('javascript')
+      fp.languages.some(language => ['typescript', 'javascript'].includes(language.toLowerCase()))
     );
   }
 

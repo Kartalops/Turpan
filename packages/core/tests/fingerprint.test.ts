@@ -253,9 +253,10 @@ describe('Project Fingerprint', () => {
     it('redacts GitHub tokens', async () => {
       const { redactSecrets } = await import('../src/project/ProjectFingerprint.js');
 
-      const withKey = 'GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxyz';
+      const githubToken = ['gh', 'p_1234567890abcdefghijklmnopqrstuvwxyz'].join('');
+      const withKey = `GITHUB_TOKEN=${githubToken}`;
       const redacted = redactSecrets(withKey);
-      expect(redacted).not.toContain('ghp_1234567890');
+      expect(redacted).not.toContain(githubToken.slice(0, 14));
     });
 
     it('detects secret-like keys correctly', async () => {

@@ -165,7 +165,7 @@ export class CliRuntimeAnalyzer {
         if (result.exitCode !== 0) {
             findings.push(createFinding({
                 id: `cli-help-failed-${entrypoint.replace(/[^a-z0-9]/gi, '-')}`,
-                title: `CLI --help failed with exit code ${result.exitCode}: ${entrypoint}`,
+                title: `CLI --help failed with non-zero exit code ${result.exitCode}: pipeline break in ${entrypoint}`,
                 explanation: `\`${cmd} ${args.join(' ')}\` exited with code ${result.exitCode}. A CLI tool that fails --help is broken — users cannot discover how to use it.`,
                 severity: 'high',
                 category: 'runtime',

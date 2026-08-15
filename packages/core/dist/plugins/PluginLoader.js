@@ -264,7 +264,7 @@ function autoDetectPlugins(fingerprint, availableIds) {
         if (availableIds.includes('vite'))
             detected.push('vite');
     }
-    if (fingerprint.languages.includes('python') || fingerprint.appType === 'python-bot' || fingerprint.appType === 'fastapi') {
+    if (fingerprint.languages.some(language => language.toLowerCase() === 'python') || fingerprint.appType === 'python-bot' || fingerprint.appType === 'fastapi') {
         if (availableIds.includes('python'))
             detected.push('python');
     }

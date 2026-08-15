@@ -6,6 +6,8 @@ export * from './findings/index.js';
 export * from './reports/index.js';
 export * from './logger/index.js';
 export * from './plugins/index.js';
+export * from './intelligence/index.js';
+export * from './runtime/index.js';
 export { SafeCommandRunner } from './runner/SafeCommandRunner.js';
 export { DANGEROUS_PATTERNS, checkDangerousPatterns, validateScript } from './runner/CommandPolicy.js';
 export { LogRedactor, defaultRedactor } from './runner/LogRedactor.js';

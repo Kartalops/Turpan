@@ -4,9 +4,10 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import {
   resolveProjectPath,
+  ensureDir,
   fileExists,
   readJsonFile,
-  listDirectory,
+  writeJsonFile,
   createTimestampDir,
 } from './index.js';
 import {
@@ -69,18 +70,23 @@ describe('shared/fs', () => {
     });
   });
 
-  describe('listDirectory', () => {
-    it('lists entries in a directory', () => {
+  describe('ensureDir', () => {
+    it('creates missing directories recursively', () => {
       const tmp = mkdtempSync(join(tmpdir(), 'turpan-shared-'));
-      writeFileSync(join(tmp, 'a.txt'), '');
-      writeFileSync(join(tmp, 'b.txt'), '');
-      const entries = listDirectory(tmp);
-      expect(entries.length).toBe(2);
+      const nested = join(tmp, 'a', 'b', 'c');
+      ensureDir(nested);
+      expect(existsSync(nested)).toBe(true);
       rmSync(tmp, { recursive: true, force: true });
     });
+  });
 
-    it('returns empty array for missing dir', () => {
-      expect(listDirectory('/definitely/not/here/12345')).toEqual([]);
+  describe('writeJsonFile', () => {
+    it('writes JSON and creates parent directories', () => {
+      const tmp = mkdtempSync(join(tmpdir(), 'turpan-shared-'));
+      const out = join(tmp, 'nested', 'config.json');
+      writeJsonFile(out, { ok: true, depth: 2 });
+      expect(readJsonFile(out)).toEqual({ ok: true, depth: 2 });
+      rmSync(tmp, { recursive: true, force: true });
     });
   });
 });
@@ -100,7 +106,7 @@ describe('shared/git', () => {
   });
 });
 
-describe('shared/process', () => {
+describe('shared/fs timestamp dirs', () => {
   describe('createTimestampDir', () => {
     it('creates a timestamped directory under base', () => {
       const tmp = mkdtempSync(join(tmpdir(), 'turpan-shared-'));

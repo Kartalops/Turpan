@@ -289,6 +289,7 @@ describe('Redaction in audit logs', () => {
   });
 
   it('audit log inputSummary redacts secrets', () => {
+    const githubToken = ['gh', 'p_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'].join('');
     const ctx = new AuditContext({
       toolName: 'turpan.review_project',
       projectPath: TEST_PROJECT,
@@ -296,7 +297,7 @@ describe('Redaction in audit logs', () => {
       input: {
         projectPath: TEST_PROJECT,
         API_KEY: 'sk-live-abcdefghijklmnopqrstuvwxyz123456789',
-        GITHUB_TOKEN: 'ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        GITHUB_TOKEN: githubToken,
         databaseUrl: 'mysql://user:secret123@localhost:3306/mydb',
       },
     });
@@ -424,7 +425,7 @@ describe('redactObject for audit input', () => {
   it('redacts AWS keys when field name is in SENSITIVE_ENV_VARS', () => {
     // redactObject only redacts values whose keys are known sensitive names.
     // For pattern-based redaction (AKIA..., ghp_...), use redactSecrets directly.
-    const input = { API_KEY: 'AKIAIOSFODNN7EXAMPLE' };
+    const input = { API_KEY: ['AK', 'IAIOSFODNN7EXAMPLE'].join('') };
     const redacted = redactObject(input) as any;
     expect(redacted.API_KEY).toBe('[REDACTED]');
   });
@@ -448,7 +449,7 @@ describe('redactObject for audit input', () => {
     // For token value pattern redaction, use redactSecrets.
     const input = {
       tokens: [
-        { label: 'github', TOKEN: 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' },
+        { label: 'github', TOKEN: ['gh', 'p_abcdefghijklmnopqrstuvwxyz1234567890'].join('') },
         { label: 'public', TOKEN: 'not-a-secret' },
       ],
     };

@@ -1,0 +1,1 @@
+{"version":3,"file":"ArtifactBuilder.d.ts","sourceRoot":"","sources":["../../src/runtime/ArtifactBuilder.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,qBAAqB,EAAE,MAAM,YAAY,CAAC;AAExD,qBAAa,eAAe;IAC1B,QAAQ,CAAC,MAAM,EAAE,qBAAqB,GAAG,qBAAqB;CAsB/D"}

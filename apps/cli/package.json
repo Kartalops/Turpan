@@ -29,7 +29,6 @@
     "@turpan/dependency-audit": "workspace:*",
     "@turpan/fix-engine": "workspace:*",
     "@turpan/git-diff": "workspace:*",
-    "@turpan/mcp-server": "workspace:*",
     "@turpan/report": "workspace:*",
     "@turpan/shared": "workspace:*",
     "@turpan/ui-runner": "workspace:*",

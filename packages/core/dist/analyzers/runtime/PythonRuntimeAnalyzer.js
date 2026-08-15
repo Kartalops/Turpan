@@ -24,7 +24,7 @@ export class PythonRuntimeAnalyzer {
     name = 'Python Runtime Analyzer';
     categories = ['runtime', 'python', 'bot', 'worker'];
     supports(fp) {
-        return (fp.languages.includes('python') &&
+        return (fp.languages.some(language => language.toLowerCase() === 'python') &&
             (fp.appType === 'python-bot' ||
                 fp.appType === 'telegram-bot' ||
                 fp.appType === 'fastapi' ||
@@ -513,7 +513,7 @@ export class PythonRuntimeAnalyzer {
             if (!hasLogging) {
                 findings.push(createFinding({
                     id: `python-bare-except-${relPath.replace(/[^a-z0-9]/gi, '-')}-L${lineNum}`,
-                    title: `Bare except with pass (no logging) in ${relPath}:${lineNum}`,
+                    title: `Broad bare except with pass silently swallows exceptions in ${relPath}:${lineNum}`,
                     explanation: `A bare \`except: pass\` swallows all exceptions silently in "${relPath}" line ${lineNum}. This makes debugging impossible and can hide runtime failures.`,
                     severity: 'medium',
                     category: 'maintainability',

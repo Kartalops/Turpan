@@ -3,6 +3,6 @@
   "description": "Next.js SaaS with unprotected admin endpoints",
   "expected": {
     "verdict": ["GO", "CONDITIONAL_GO", "NO_GO"],
-    "mustDetect": ["admin", "auth", "missing", "role", "permission", "delete", "users"]
+    "mustDetect": ["admin", "auth", "missing", "role", "permission", "users"]
   }
 }

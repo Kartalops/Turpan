@@ -7,6 +7,7 @@
  *  - Auth flow analysis
  *  - Multi-tenancy checks
  */
+import { readFileSync } from 'fs';
 import { walkFiles } from '../../../shared/index.js';
 import { confidence } from '../../../findings/Finding.js';
 // ── Manifest ──────────────────────────────────────────────────────────────────
@@ -137,8 +138,23 @@ function createSaaSAnalyzer() {
                 }
                 // Check for auth protection on sensitive routes
                 const sensitivePatterns = ['dashboard', 'settings', 'billing', 'account', 'profile'];
-                const unprotectedSensitive = routeFiles.filter(f => sensitivePatterns.some(s => f.toLowerCase().includes(s)) &&
-                    !f.includes('auth') && !f.includes('login'));
+                const unprotectedSensitive = [];
+                for (const file of routeFiles) {
+                    if (!sensitivePatterns.some(pattern => file.toLowerCase().includes(pattern)))
+                        continue;
+                    if (/auth|login/i.test(file))
+                        continue;
+                    let content;
+                    try {
+                        content = readFileSync(file, 'utf-8');
+                    }
+                    catch {
+                        continue;
+                    }
+                    const hasGuard = /(?:getServerSession|requireAuth|requireRole|authorize|session\.user|cookies\s*\(\).*get\s*\(\s*['"]auth)/is.test(content);
+                    if (!hasGuard)
+                        unprotectedSensitive.push(file);
+                }
                 if (unprotectedSensitive.length > 0) {
                     findings.push({
                         id: 'saas-unprotected-routes',

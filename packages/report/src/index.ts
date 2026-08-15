@@ -25,6 +25,14 @@ export { RunSummaryWriter }      from './RunSummaryWriter.js';
 export { PrCommentWriter }       from './PrCommentWriter.js';
 export { DiffFindingsWriter }    from './DiffFindingsWriter.js';
 export { ReportOpenCommand }     from './ReportOpenCommand.js';
+export {
+  countFindingsBySeverity,
+  createEmptyScorecard,
+  getLatestRunPath,
+  loadLatestRunArtifacts,
+  loadRunArtifacts,
+  summarizeFindingSeverities,
+} from './runArtifacts.js';
 
 export { generateReports }       from './generateReports.js';
 
@@ -57,6 +65,11 @@ export type {
   AgentOutputHealth,
   ReleaseReadiness,
 } from './types.js';
+
+export type {
+  RunArtifacts,
+  SeverityCounts,
+} from './runArtifacts.js';
 
 // ─── JSON output types (public for schema validation) ────────────────────────
 

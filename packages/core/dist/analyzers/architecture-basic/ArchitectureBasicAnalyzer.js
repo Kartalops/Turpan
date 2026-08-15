@@ -16,7 +16,7 @@ export class ArchitectureBasicAnalyzer {
     name = 'Architecture Basic Analyzer';
     categories = ['architecture'];
     supports(fp) {
-        return fp.languages.includes('typescript') || fp.languages.includes('javascript');
+        return fp.languages.some(language => ['typescript', 'javascript'].includes(language.toLowerCase()));
     }
     async run(ctx) {
         const errors = [];

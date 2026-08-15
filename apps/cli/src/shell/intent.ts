@@ -1,4 +1,5 @@
 import type { Intent, ParsedCommand } from '@turpan/shared';
+export type { Intent } from '@turpan/shared';
 
 interface IntentPattern {
   intent: Intent;

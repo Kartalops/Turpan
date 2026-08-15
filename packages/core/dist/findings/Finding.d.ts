@@ -40,6 +40,7 @@ export interface Finding {
     /** Arbitrary tags for filtering */
     tags: string[];
 }
+export declare function createDeterministicFindingId(partial: Partial<Finding>, prefix?: string): string;
 export declare function createFinding(partial: Partial<Finding> & {
     title: string;
     explanation: string;

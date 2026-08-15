@@ -2,19 +2,18 @@
 import { Command } from 'commander';
 import chalk16 from 'chalk';
 import { dirname, join, resolve } from 'path';
-import { writeFileSync, existsSync, readFileSync, unlinkSync, mkdirSync } from 'fs';
-import { spawnSync, execSync } from 'child_process';
+import { writeFileSync, existsSync, readFileSync, unlinkSync } from 'fs';
+import { spawnSync, spawn, execSync } from 'child_process';
 import { runAnalysis, loadConfig, detectProject, PluginRegistry, loadPlugins, PluginTrustDb, DEFAULT_TRUSTED_PLUGINS, PLUGIN_PERMISSIONS, PERMISSION_DESCRIPTIONS, formatFingerprintSummary, runReview } from '@turpan/core';
 import { runUiTest, scenarioRegistry } from '@turpan/ui-runner';
 import { runAgentOutputAudit } from '@turpan/analyzers';
-import { resolveProjectPath, getGitInfo } from '@turpan/shared';
+import { resolveProjectPath, ensureDir, getGitInfo } from '@turpan/shared';
 import inquirer from 'inquirer';
 import { buildFixPlan, summarizePlan, buildFixRunResult, writeFixReport, shouldRollback, getCurrentCommitHash, saveRollbackRecord } from '@turpan/fix-engine';
 import { fileURLToPath } from 'url';
 import { runDependencyAudit } from '@turpan/dependency-audit';
 import { GitDiffEngine } from '@turpan/git-diff';
-import { deriveVerdict, generateReports, ReportOpenCommand } from '@turpan/report';
-import { runMcpCommand } from '@turpan/mcp-server';
+import { loadRunArtifacts, deriveVerdict, generateReports, countFindingsBySeverity, ReportOpenCommand } from '@turpan/report';
 
 var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -149,7 +148,11 @@ async function findStickyCommentId(token, owner, repo, prNumber, headers) {
     headers
   });
   if (!res.ok) return null;
-  const comments = await res.json();
+  const payload = await res.json();
+  if (!Array.isArray(payload)) return null;
+  const comments = payload.filter(
+    (comment) => typeof comment === "object" && comment !== null && typeof comment.id === "number" && typeof comment.body === "string"
+  );
   for (const c of comments) {
     if (c.body.includes(STICKY_MARKER)) {
       return c.id;
@@ -814,7 +817,7 @@ Scenario "${scenarioId}" not found.
   cmd.addCommand(inspectCmd);
   const testAuthCmd = new Command("test-auth");
   testAuthCmd.description("Show authenticated SaaS test status and configuration").option("--project <path>", "Project path", ".").option("--json", "Output as JSON", false).action(async (options) => {
-    const { resolveProjectPath: resolveProjectPath9, loadConfig: loadConfig3 } = await import('@turpan/shared');
+    const { resolveProjectPath: resolveProjectPath9 } = await import('@turpan/shared');
     const { loadConfig: loadCoreConfig } = await import('@turpan/core');
     const projectPath = resolveProjectPath9(options.project ?? ".");
     let cfg;
@@ -895,14 +898,10 @@ Scenario "${scenarioId}" not found.
 }
 var __filename$1 = fileURLToPath(import.meta.url);
 var __dirname$1 = dirname(__filename$1);
-function resolveProjectPath6(input) {
-  if (!input) return process.cwd();
-  return resolve(process.cwd(), input);
-}
 function createEvalCommand() {
   const cmd = new Command("eval");
   cmd.description("\u{1F42A} Run Turpan eval suite against fixture projects").argument("[path]", "Project path (default: repo root)", ".").option("--fixture <name>", "Run only this fixture").option("--update", "Update eval.json expectations to match actual results").option("--verbose", "Show full output and all assertion details").option("--quiet", "Show minimal output").option("--hard-fail", "Treat all warnings as errors (CI mode)").option("--report <path>", "Save JSON report to custom path").action(async (path, options) => {
-    const projectRoot = resolveProjectPath6(path);
+    const projectRoot = resolveProjectPath(path);
     const repoRoot = join(__dirname$1, "..", "..", "..");
     const evalScript = join(repoRoot, "scripts", "eval.ts");
     if (!existsSync(evalScript)) {
@@ -1060,7 +1059,7 @@ function createDependencyAuditCommand() {
         warnUnknown: true
       }
     };
-    const yamlAudit = config["dependencyAudit"];
+    const yamlAudit = config.dependencyAudit;
     if (yamlAudit) {
       Object.assign(auditConfig, yamlAudit);
       if (options.online !== void 0) auditConfig.online = options.online;
@@ -1743,6 +1742,8 @@ var CommandMemory = class {
       lastRunMetadata: this.memory.lastRunMetadata,
       projectStarted: this.memory.projectStarted,
       selectedMode: this.memory.selectedMode,
+      historyIndex: this.memory.historyIndex,
+      historyExhaustedForward: this.memory.historyExhaustedForward,
       commandCount: this.memory.commandHistory.length
     };
   }
@@ -2310,7 +2311,7 @@ var IntentRouter = class {
       }
     }
     const scenarios = extractScenariosFromCommand(parsed.raw);
-    if (intent === "clean" || intent === "cleanup-review") {
+    if (intent === "clean" || intent === "cleanup_review") {
       return { intent, label, action: "report", description, runOptions: { ...finalOptions, deepAnalysis: true }, plugins };
     }
     return { intent, label, action, description, runOptions: finalOptions, plugins, scenarios };
@@ -2374,8 +2375,8 @@ async function runInteractiveShell(config) {
   const session = new ShellSession(
     {
       projectPath,
-      projectName: fingerprint.name ?? "unknown",
-      projectType: fingerprint.framework ?? "unknown"
+      projectName: fingerprint.projectName,
+      projectType: fingerprint.appType
     },
     memory
   );
@@ -2495,7 +2496,7 @@ async function executeRoute(route, session, router, renderer) {
       }
       return;
     }
-    if (intent === "open_report" || intent === "open") {
+    if (intent === "open_report") {
       await openLatestReport(session, renderer);
       return;
     }
@@ -2529,7 +2530,18 @@ async function executeRoute(route, session, router, renderer) {
       duration: result.durationMs
     });
     session.commandMemory.setFindings(result.findings);
-    session.commandMemory.setScorecard(result.scorecard);
+    session.commandMemory.setScorecard({
+      overall: result.scorecard.overall,
+      categories: {
+        correctness: result.scorecard.overall,
+        security: result.scorecard.security,
+        performance: result.scorecard.ui_runtime,
+        maintainability: result.scorecard.architecture,
+        codeCoverage: result.scorecard.test_health
+      },
+      findingsCount: result.findings.length,
+      criticalIssues: result.findings.filter((finding) => finding.severity === "critical").length
+    });
     session.setProjectStarted(true);
     const mode = ShellSession.intentToMode(intent);
     session.setMode(mode);
@@ -2604,7 +2616,6 @@ function buildTurpanConfig(session, runOptions, plugins, scenarios) {
     skipTests: runOptions?.skipTests ?? false,
     skipLint: runOptions?.skipLint ?? false,
     skipTypecheck: runOptions?.skipTypecheck ?? false,
-    skipSecurity: runOptions?.skipSecurity ?? false,
     plugins,
     uiScenarios: scenarios,
     skipScenarios: false
@@ -2625,10 +2636,6 @@ async function openLatestReport(session, renderer) {
   } catch {
     renderer.error(`Could not open report: ${reportPath}`);
   }
-}
-function resolveProjectPath8(input) {
-  if (!input) return process.cwd();
-  return resolve(process.cwd(), input);
 }
 function createDefaultConfig2(projectPath) {
   const projectName = projectPath.split("/").pop() || "unknown-project";
@@ -2714,27 +2721,33 @@ function exitWithPolicy(failOn, critical, high) {
   }
   process.exit(0);
 }
+async function delegateMcpCommand(argv) {
+  await new Promise((resolve5, reject) => {
+    const child = spawn("turpan-mcp", argv, {
+      stdio: "inherit",
+      shell: false,
+      env: process.env
+    });
+    child.on("error", (error) => {
+      if (error.code === "ENOENT") {
+        reject(new Error("turpan-mcp binary not found. Install or link @turpan/mcp-server to use MCP commands."));
+        return;
+      }
+      reject(error);
+    });
+    child.on("exit", (code, signal) => {
+      if (signal) reject(new Error(`turpan-mcp exited from signal ${signal}`));
+      else if (code && code !== 0) reject(new Error(`turpan-mcp exited with code ${code}`));
+      else resolve5();
+    });
+  });
+}
 async function printTerminalSummary(projectPath, runPath, diffReviewData) {
-  const findingsPath = join(runPath, "TURPAN_FINDINGS.json");
-  const scorecardPath = join(runPath, "TURPAN_SCORECARD.json");
   const fingerprintPath = join(runPath, "project-fingerprint.json");
   const agentAuditSummaryPath = join(runPath, "agent-audit-summary.json");
-  let findings = [];
-  let scorecard = { overall: 0, categories: { correctness: 0, security: 0, performance: 0, maintainability: 0, codeCoverage: 0 }, findingsCount: 0, criticalIssues: 0 };
+  const { findings, scorecard } = loadRunArtifacts(runPath);
   let fingerprint = {};
   let agentAudit;
-  if (existsSync(findingsPath)) {
-    try {
-      findings = JSON.parse(readFileSync(findingsPath, "utf-8")).findings ?? [];
-    } catch {
-    }
-  }
-  if (existsSync(scorecardPath)) {
-    try {
-      scorecard = JSON.parse(readFileSync(scorecardPath, "utf-8"));
-    } catch {
-    }
-  }
   if (existsSync(fingerprintPath)) {
     try {
       fingerprint = JSON.parse(readFileSync(fingerprintPath, "utf-8"));
@@ -2749,16 +2762,17 @@ async function printTerminalSummary(projectPath, runPath, diffReviewData) {
   }
   const runId = runPath.split("/").pop() ?? (/* @__PURE__ */ new Date()).toISOString();
   const timestamp = (/* @__PURE__ */ new Date()).toISOString();
+  const reportFindings = findings;
   const analysisData = {
     runId,
     runPath,
     timestamp,
     duration: 0,
     projectPath,
-    findings,
+    findings: reportFindings,
     scorecard,
     fingerprint,
-    verdict: deriveVerdict(scorecard, findings),
+    verdict: deriveVerdict(scorecard, reportFindings),
     agentAudit,
     diffReview: diffReviewData
   };
@@ -2769,9 +2783,10 @@ async function printTerminalSummary(projectPath, runPath, diffReviewData) {
     console.log(chalk16.dim(`  (report generation: ${err instanceof Error ? err.message : err})
 `));
   }
-  const critical = findings.filter((f) => f.severity === "critical").length;
-  const high = findings.filter((f) => f.severity === "high").length;
-  const medium = findings.filter((f) => f.severity === "medium").length;
+  const counts = countFindingsBySeverity(reportFindings);
+  const critical = counts.critical;
+  const high = counts.high;
+  const medium = counts.medium;
   const verdict = analysisData.verdict;
   const verdictColor = verdict === "GO" ? chalk16.green : verdict === "CONDITIONAL_GO" ? chalk16.yellow : chalk16.red;
   const verdictIcon = verdict === "GO" ? "\u2705" : verdict === "CONDITIONAL_GO" ? "\u26A0\uFE0F" : verdict === "NO_GO" ? "\u274C" : "\u{1F512}";
@@ -2809,11 +2824,6 @@ async function printTerminalSummary(projectPath, runPath, diffReviewData) {
   console.log();
   return { critical, high, medium, verdict };
 }
-function ensureDir(dirPath) {
-  if (!existsSync(dirPath)) {
-    mkdirSync(dirPath, { recursive: true });
-  }
-}
 function createDoctorCommand2() {
   const cmd = new Command("doctor");
   cmd.description("Check system requirements and environment").action(async () => {
@@ -2836,7 +2846,7 @@ function createDoctorCommand2() {
 function createInitCommand2() {
   const cmd = new Command("init");
   cmd.description("Initialize Turpan configuration in a project").argument("[path]", "Project path", ".").action(async (path) => {
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     console.log(chalk16.bold("\n\u{1F680} Initializing Turpan\n"));
     console.log(chalk16.dim(`Project: ${projectPath}
 `));
@@ -2852,7 +2862,7 @@ function createInitCommand2() {
 function createReviewCommand2() {
   const cmd = new Command("review");
   cmd.description("Run code review on a project").argument("[path]", "Project path to analyze", ".").option("-d, --deep", "Enable deep analysis (includes static quality, dead code, security checks)", false).option("-q, --quality", "Run static code quality analyzers only (unused deps, placeholders, complexity, architecture)", false).option("-u, --ui", "Enable UI analysis", false).option("-f, --fix", "Enable fix mode (produces patch plans only, same as --patch-only)", false).option("--patch-only", "Generate patch diffs without applying (default when using --fix)", false).option("--apply", "Apply fixes to working tree (requires clean git state)", false).option("--interactive", "Ask before applying each fix", false).option("--auto-safe", "Automatically apply only safe fix categories", false).option("-p, --plan", "Print the review plan without running analysis", false).option("--install", "Run dependency installation before review", false).option("--timeout <seconds>", "Timeout per command in seconds (default: 120)", "120").option("--skip-build", "Skip build stage", false).option("--skip-tests", "Skip test stage", false).option("--skip-lint", "Skip lint stage", false).option("--skip-typecheck", "Skip typecheck stage", false).option("-s, --scenarios <ids>", "Comma-separated UI test scenario IDs (e.g. auth,billing,dashboard)", void 0).option("--skip-scenarios", "Skip scenario library execution in UI tests", false).option("--plugins <list>", "Comma-separated list of plugins to enable (e.g. saas,security-basic)", void 0).option("--agent-output", "Run agent output audit (requires --task)", false).option("--task <file>", "Task/prompt file for agent audit").option("--from <ref>", "Base ref for diff-based review (e.g. main, origin/main)", void 0).option("--to <ref>", "Target ref for diff-based review (e.g. HEAD, feature-branch)", void 0).option("--fail-on <level>", "Exit code policy: critical (exit 1 on critical), high (exit 1 on critical or high), never (never fail)", "never").option("--dependency-audit", "Include dependency CVE scan and license audit (offline by default)", false).option("--online", "Enable online CVE scanning (OSV/npm audit) \u2014 only used with --dependency-audit", false).action(async (path, options) => {
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     const timeoutMs = (parseInt(options.timeout ?? "120") || 120) * 1e3;
     if (options.from || options.to) {
       const baseRef = options.from ?? "main";
@@ -3126,7 +3136,7 @@ function createReportCommand2() {
   const cmd = new Command("report");
   cmd.description("Display, open, or export the Turpan Analysis report").argument("[path]", "Project path or run ID (default: latest run)", ".").option("--format <format>", "Output format: markdown (default) or html", "markdown").option("--json", "Output structured JSON (findings + scorecard)", false).option("--open", "Open the HTML report in the browser", false).action(async (path, options) => {
     const { ReportOpenCommand: ReportOpenCommand2 } = await import('@turpan/report');
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     if (options.open) {
       await ReportOpenCommand2.open();
       return;
@@ -3171,7 +3181,7 @@ function createReportCommand2() {
 function createInspectCommand2() {
   const cmd = new Command("inspect");
   cmd.description("Inspect and display project fingerprint").argument("[path]", "Project path to inspect", ".").option("--json", "Output as JSON", false).action(async (path, options) => {
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     console.log(chalk16.bold("\n\u{1F50D} Project Fingerprint\n"));
     console.log(chalk16.dim(`Inspecting: ${projectPath}
 `));
@@ -3213,7 +3223,7 @@ program.name("turpan").description("\u{1F42A} Interactive review and fix agent C
 function createCleanupScanCommand() {
   const cmd = new Command("cleanup-scan");
   cmd.description("Scan for cleanup candidates (unused code, placeholders, dead code) \u2014 read-only").argument("[path]", "Project path to scan", ".").option("--deep", "Run deep analysis including architecture checks", false).action(async (path, options) => {
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     console.log(chalk16.bold("\n\u{1F9F9} Turpan Cleanup Scan\n"));
     console.log(chalk16.dim(`Project: ${projectPath}`));
     console.log(chalk16.dim("Mode: read-only \u2014 no files will be deleted\n"));
@@ -3248,17 +3258,17 @@ function createCleanupScanCommand() {
 function createAgentAuditCommand() {
   const cmd = new Command("agent-audit");
   cmd.description("Audit agent output: compare original task to actual implementation").argument("[path]", "Project path to audit", ".").option("-t, --task <file>", "Path to task/prompt file that was given to the agent").option("--agent <type>", "Agent type (claude-code, opencode, cursor, etc.)").option("--shell", "Read task from interactive shell input").option("--from <ref>", "Base ref for diff-scoped audit (e.g. main)", void 0).option("--to <ref>", "Target ref for diff-scoped audit (e.g. HEAD)", void 0).action(async (path, options) => {
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     console.log(chalk16.bold("\n\u{1F916} Turpan Agent Output Audit\n"));
     console.log(chalk16.dim(`Project: ${projectPath}
 `));
     let taskText;
     if (options.shell) {
       console.log(chalk16.dim("Paste the task/prompt (Ctrl+D to finish):\n"));
-      taskText = await new Promise((resolve6) => {
+      taskText = await new Promise((resolve5) => {
         const chunks = [];
         process.stdin.on("data", (d) => chunks.push(d.toString()));
-        process.stdin.on("end", () => resolve6(chunks.join("")));
+        process.stdin.on("end", () => resolve5(chunks.join("")));
       });
     } else if (options.task) {
       const taskPath = resolve(projectPath, options.task);
@@ -3432,7 +3442,7 @@ function createAgentAuditCommand() {
 function createUiTestCommand() {
   const cmd = new Command("ui-test");
   cmd.description("Run live UI testing engine \u2014 start dev server, open browser, test routes").argument("[path]", "Project path to test", ".").option("--url <url>", "Skip server start, use existing URL (e.g. http://localhost:3000)").option("--headed", "Run with visible browser (not headless)", false).option("--mobile", "Only test mobile viewport (390\xD7844)", false).option("--desktop", "Only test desktop viewport (1280\xD7800)", false).option("--trace", "Capture Playwright traces for debugging", false).option("-s, --scenarios <ids>", "Comma-separated scenario IDs (e.g. auth,billing,marketing)", void 0).option("--skip-scenarios", "Skip scenario library", false).action(async (path, options) => {
-    const projectPath = resolveProjectPath8(path);
+    const projectPath = resolveProjectPath(path);
     const runId = (/* @__PURE__ */ new Date()).toISOString().replace(/[:.]/g, "-");
     console.log(chalk16.bold("\n\u{1F5A5}\uFE0F  Turpan Live UI Test\n"));
     console.log(chalk16.dim(`Project: ${projectPath}`));
@@ -3541,21 +3551,21 @@ program.addCommand(scriptsCmd);
 var mcpCmd = new Command("mcp");
 mcpCmd.description("\u{1F42A} Turpan MCP Server commands");
 mcpCmd.command("serve").description("Start the Turpan MCP server (stdio transport)").allowUnknownOption(true).action(async () => {
-  await runMcpCommand(["serve", ...process.argv.slice(3)]);
+  await delegateMcpCommand(["serve", ...process.argv.slice(3)]);
 });
 mcpCmd.command("config").description("Show MCP server configuration").allowUnknownOption(true).action(async () => {
-  await runMcpCommand(["config", ...process.argv.slice(3)]);
+  await delegateMcpCommand(["config", ...process.argv.slice(3)]);
 });
 mcpCmd.command("status").description("Check MCP server status").allowUnknownOption(true).action(async () => {
-  await runMcpCommand(["status", ...process.argv.slice(3)]);
+  await delegateMcpCommand(["status", ...process.argv.slice(3)]);
 });
 program.addCommand(mcpCmd);
 program.action(async () => {
   if (process.argv.length >= 3 && process.argv[2] === "mcp") {
-    await runMcpCommand(["--help"]);
+    await delegateMcpCommand(["--help"]);
     return;
   }
-  await runInteractiveShell({ projectPath: resolveProjectPath8(".") });
+  await runInteractiveShell({ projectPath: resolveProjectPath(".") });
 });
 program.parseAsync(process.argv).catch((error) => {
   console.error(chalk16.red(`

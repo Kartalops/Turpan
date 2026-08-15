@@ -3,7 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach, testTimeout } from 'vitest';
-import { join } from 'path';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import {
   PythonRuntimeAnalyzer,
   FastApiRuntimeAnalyzer,
@@ -13,11 +14,13 @@ import {
 import type { AnalyzerContext } from '../src/analyzers/Analyzer.js';
 
 // Fixture paths
-const PYTHON_BOT_FIXTURE = '/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/core/tests/fixtures/runtime/python-bot';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const RUNTIME_FIXTURES = join(__dirname, 'fixtures', 'runtime');
+const PYTHON_BOT_FIXTURE = join(RUNTIME_FIXTURES, 'python-bot');
 const PYTHON_BOT_ISSUES_FIXTURE = join(PYTHON_BOT_FIXTURE, 'bot_with_issues.py');
-const FASTAPI_FIXTURE = '/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/core/tests/fixtures/runtime/fastapi-app';
-const CLI_FIXTURE = '/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/core/tests/fixtures/runtime/cli-tool';
-const MCP_FIXTURE = '/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/core/tests/fixtures/runtime/mcp-server';
+const FASTAPI_FIXTURE = join(RUNTIME_FIXTURES, 'fastapi-app');
+const CLI_FIXTURE = join(RUNTIME_FIXTURES, 'cli-tool');
+const MCP_FIXTURE = join(RUNTIME_FIXTURES, 'mcp-server');
 
 function makeFp(overrides: Partial<Parameters<typeof makeFp>[0]> = {}): AnalyzerContext['fingerprint'] {
   return {

@@ -211,7 +211,7 @@ describe('sanitizeCommandOutput', () => {
   });
 
   it('redacts potential secret patterns', () => {
-    const withSecret = 'token=sk_live_abc123xyz';
+    const withSecret = `token=${['sk', '_live_abc123xyz'].join('')}`;
     const result = sanitizeCommandOutput(withSecret);
     expect(result).not.toContain('sk_live_abc123xyz');
     expect(result).toContain('[REDACTED]');

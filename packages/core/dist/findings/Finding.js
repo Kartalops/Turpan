@@ -2,19 +2,46 @@
  * Finding — structured, evidence-backed review issue
  * Every Finding MUST have evidence. Vague assertions are not Findings.
  */
+import { createHash } from 'crypto';
 export function confidence(n) {
     return Math.max(0, Math.min(100, Math.round(n)));
 }
-let _idCounter = 0;
-function genId(prefix = 'fnd') {
-    return `${prefix}-${Date.now().toString(36)}${(_idCounter++).toString(36)}`;
+function stableFindingSeed(partial) {
+    return JSON.stringify({
+        title: partial.title,
+        severity: partial.severity,
+        category: partial.category,
+        file: partial.file,
+        line: partial.line,
+        command: partial.command,
+        explanation: partial.explanation,
+        suggestedFix: partial.suggestedFix,
+        fixable: partial.fixable,
+        tags: partial.tags ?? [],
+        evidence: (partial.evidence ?? []).map((item) => ({
+            type: item.type,
+            label: item.label,
+            path: item.path,
+            excerpt: item.excerpt,
+            url: item.url,
+            command: item.command,
+            exitCode: item.exitCode,
+            value: item.value,
+            unit: item.unit,
+            metadata: item.metadata,
+        })),
+    });
+}
+export function createDeterministicFindingId(partial, prefix = 'fnd') {
+    const digest = createHash('sha1').update(stableFindingSeed(partial)).digest('hex').slice(0, 12);
+    return `${prefix}-${digest}`;
 }
 export function createFinding(partial) {
     if (!partial.evidence || partial.evidence.length === 0) {
         throw new Error(`Finding "${partial.title}" has no evidence — every Finding requires evidence`);
     }
     if (!partial.id)
-        partial.id = genId();
+        partial.id = createDeterministicFindingId(partial);
     if (!partial.tags)
         partial.tags = [];
     if (!partial.confidence)
@@ -26,7 +53,19 @@ export function createFinding(partial) {
 /** Create a placeholder Finding — used before real analysis is implemented */
 export function createPlaceholderFinding(title, explanation, category = 'project') {
     return createFinding({
-        id: genId('placeholder'),
+        id: createDeterministicFindingId({
+            title,
+            explanation,
+            category,
+            severity: 'info',
+            evidence: [
+                {
+                    type: 'command-log',
+                    label: 'placeholder',
+                    excerpt: 'Placeholder — real evidence not yet collected',
+                },
+            ],
+        }, 'placeholder'),
         title,
         explanation,
         category,

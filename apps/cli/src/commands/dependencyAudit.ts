@@ -5,7 +5,7 @@ import { runDependencyAudit } from '@turpan/dependency-audit';
 import { loadConfig } from '@turpan/core';
 import type { DependencyAuditResult } from '@turpan/dependency-audit';
 
-function severityColor(severity: string): string {
+function severityColor(severity: string): typeof chalk.red {
   switch (severity) {
     case 'critical': return chalk.red.bold;
     case 'high': return chalk.red;
@@ -155,7 +155,7 @@ export function createDependencyAuditCommand(): Command {
       };
 
       // Override from turpan.yml if present
-      const yamlAudit = (config as Record<string, unknown>)['dependencyAudit'] as typeof auditConfig | undefined;
+      const yamlAudit = config.dependencyAudit;
       if (yamlAudit) {
         Object.assign(auditConfig, yamlAudit);
         // CLI flags override yaml

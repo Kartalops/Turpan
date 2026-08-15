@@ -182,7 +182,7 @@ function createMCPAnalyzer() {
                 if (unsafePathHits.length > 0) {
                     findings.push(createFinding({
                         id: 'mcp-unsafe-filesystem',
-                        title: `MCP tools access filesystem without path validation (${unsafePathHits.length} file(s))`,
+                        title: `MCP tools permit arbitrary filesystem path readFileSync access without workspace bounds (${unsafePathHits.length} file(s))`,
                         explanation: `Found ${unsafePathHits.length} MCP tool(s) that perform file operations without ` +
                             `apparent path validation. Without validation, malicious input could read or write ` +
                             `arbitrary files outside the intended workspace. Use realpath() and allowlist checks.`,

@@ -1,5 +1,5 @@
 import { Finding } from '@turpan/core';
-import { Scorecard } from '@turpan/shared';
+import { Scorecard, Finding as Finding$1 } from '@turpan/shared';
 import { FixRunResult, ValidationResult, FixCandidate } from '@turpan/fix-engine';
 
 /**
@@ -699,6 +699,25 @@ declare class ReportOpenCommand {
     static resolveRunPath(idOrLatest: string): string;
 }
 
+interface SeverityCounts {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    info: number;
+}
+interface RunArtifacts {
+    runId: string;
+    findings: Finding$1[];
+    scorecard: Scorecard;
+}
+declare function createEmptyScorecard(): Scorecard;
+declare function countFindingsBySeverity(findings: Finding$1[]): SeverityCounts;
+declare function summarizeFindingSeverities(findings: Finding$1[]): string;
+declare function loadRunArtifacts(runPath: string): RunArtifacts;
+declare function getLatestRunPath(projectPath: string): string | null;
+declare function loadLatestRunArtifacts(projectPath: string): RunArtifacts;
+
 /**
  * generateReports — produces all Turpan Analysis output artifacts.
  *
@@ -719,4 +738,4 @@ declare function generateReports(data: TurpanAnalysisData): Promise<{
     diffFindings?: string;
 }>;
 
-export { type AgentOutputAudit, type AgentOutputHealth, type ArchitectureHealth, type AuthenticatedSaasSection, type BuildHealth, type CodeQualityReview, type ConsoleError, type DeadCodeHealth, type DependencyAuditSection, DiffFindingsWriter, type DiffReview, type EvidenceFile, type EvidenceIndex, EvidenceIndexWriter, type FindingsSummary, type FixPlan, FixPlanWriter, type HealthDimension, HtmlReportWriter, JsonReportWriter, type LiveUiReview, MarkdownReportWriter, type NetworkError, type NextAction, PrCommentWriter, type ReleaseReadiness, ReportOpenCommand, type RunSummary, RunSummaryWriter, ScorecardWriter, type SecurityHealth, type SecurityReview, type SerializedEvidence, type SerializedFinding, type SeverityBreakdown, type TestHealth, type TurpanAnalysisData, type TurpanDiffFindingsJson, type TurpanFindingsJson, type TurpanRunSummary, type TurpanScorecard, type UiHealth, type UiScreenshot, type ValidationResults, type Verdict, deriveVerdict, generateReports };
+export { type AgentOutputAudit, type AgentOutputHealth, type ArchitectureHealth, type AuthenticatedSaasSection, type BuildHealth, type CodeQualityReview, type ConsoleError, type DeadCodeHealth, type DependencyAuditSection, DiffFindingsWriter, type DiffReview, type EvidenceFile, type EvidenceIndex, EvidenceIndexWriter, type FindingsSummary, type FixPlan, FixPlanWriter, type HealthDimension, HtmlReportWriter, JsonReportWriter, type LiveUiReview, MarkdownReportWriter, type NetworkError, type NextAction, PrCommentWriter, type ReleaseReadiness, ReportOpenCommand, type RunArtifacts, type RunSummary, RunSummaryWriter, ScorecardWriter, type SecurityHealth, type SecurityReview, type SerializedEvidence, type SerializedFinding, type SeverityBreakdown, type SeverityCounts, type TestHealth, type TurpanAnalysisData, type TurpanDiffFindingsJson, type TurpanFindingsJson, type TurpanRunSummary, type TurpanScorecard, type UiHealth, type UiScreenshot, type ValidationResults, type Verdict, countFindingsBySeverity, createEmptyScorecard, deriveVerdict, generateReports, getLatestRunPath, loadLatestRunArtifacts, loadRunArtifacts, summarizeFindingSeverities };

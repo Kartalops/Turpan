@@ -23,7 +23,7 @@
     "code-review"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "test": "vitest run",
     "watch": "tsc --watch"
   },

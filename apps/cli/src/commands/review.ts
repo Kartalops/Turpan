@@ -18,7 +18,7 @@ export function createReviewCommand(): Command {
     .option('--skip-scenarios', 'Skip real scenario library execution in UI tests', false)
     .option('--dependency-audit', 'Include dependency CVE scan and license audit', false)
     .option('--online', 'Enable online CVE scanning (OSV/npm audit) — only used with --dependency-audit', false)
-    .action(async (path: string, options: { deep?: boolean; quality?: boolean; ui?: boolean; runtime?: boolean; fix?: boolean; plugins?: string; dependencyAudit?: boolean; online?: boolean }) => {
+    .action(async (path: string, options: { deep?: boolean; quality?: boolean; ui?: boolean; runtime?: boolean; fix?: boolean; plugins?: string; scenarios?: string; skipScenarios?: boolean; dependencyAudit?: boolean; online?: boolean }) => {
       const projectPath = resolveProjectPath(path);
 
       const modeDesc = options.quality

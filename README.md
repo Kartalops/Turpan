@@ -1,223 +1,212 @@
-# 🐪 Turpan
+# Turpan
 
-<!-- Badges -->
-<div align="center">
+Turpan is an evidence-driven autonomous software review agent for TypeScript/JavaScript and Python projects.
 
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-0.1.0-orange?style=for-the-badge)
-![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)
+Project status: **V1 NOT YET CERTIFIED**.
 
-</div>
+## Why Turpan
 
----
+Turpan is built around one rule:
 
-## ✨ Interactive Review & Fix Agent for Real-World Codebases
+```text
+Models reason. Tools prove.
+```
 
-> **Read-only by default.** Produces patches only when you ask. Never destructive without explicit consent.
+It does not simply ask an LLM to review a repository. The review loop combines deterministic analysis, model reasoning contracts, runtime/browser evidence, adversarial verification, and isolated patch experiments. The technical release gates pass; V1 quality certification remains blocked by insufficient benchmark and calibration samples.
 
-Turpan is **not** a simple static scanner. It's an interactive shell, an orchestrator, and a safe fix engine — wrapped around a curated set of analyzers that understand common SaaS, Next.js, Vite, Python, FastAPI, and MCP projects.
+## What It Does Today
 
----
+Current validated paths:
 
-## 🚀 Quick Start
+- Project fingerprinting and deterministic analyzers.
+- Static and diff-scoped review primitives.
+- Dependency/SBOM review package.
+- MCP server adapter with workspace/security controls.
+- Playwright-based UI runner with a verified local Chromium smoke path.
+- Provider-neutral model intelligence contracts, router, specialists, verifier, and consensus primitives.
+- Isolated patch experiment framework with a verified temporary Git worktree smoke path.
+- V1 eval package with golden corpus definitions, metrics, calibration buckets, strategy benchmarking, prompt-injection defense, and release gates.
+
+Important limitation: live provider benchmarks, precision/calibration, and representative patch-rate metrics are not yet certified.
+
+## Core Commands
+
+Use the repository package manager through Corepack:
 
 ```bash
-# Install & Build
-pnpm install && pnpm build
-
-# Verify environment
-npx turpan doctor
-
-# Run a deep review
-npx turpan review . --deep
-
-# Open the interactive shell
-npx turpan
+corepack pnpm install --frozen-lockfile
+corepack pnpm build
+corepack pnpm test
+corepack pnpm -r run lint
+corepack pnpm eval -- --hard-fail
 ```
 
----
-
-## 🎯 Key Features
-
-| Feature | Description |
-|---------|-------------|
-| 🔒 **Read-only by Default** | Never modifies user code unless you ask |
-| 🎯 **Bounded Fixes** | Every fix is a small patch, capped at N files |
-| 💬 **Natural Language Shell** | Type `review this as a SaaS`, not complex flags |
-| 🔌 **Extensible Plugins** | Built-in plugins for Next.js, Vite, Python, FastAPI, MCP, SaaS |
-| 🛡️ **AI-Agent Ready** | Full MCP server with workspace allowlist & redaction |
-| 🧪 **Real UI Testing** | Playwright-powered scenarios for auth, billing, dashboard |
-
----
-
-## 📐 Architecture
-
-```
-Project ───▶ Detect (fingerprint) ───▶ Plan (stages)
-                                             │
-                                             ▼
-             ◀── Findings + Scorecard ◀── Run stages
-                      │
-                      ▼
-             ◀── Patch (only if --fix) ◀── Fix engine
-                      │
-                      ▼
-                  Apply (only if --apply, with safe categories)
-```
-
----
-
-## ⚡ CLI Examples
-
-### Deep review on a Next.js SaaS
+Built CLI smoke command:
 
 ```bash
-npx turpan review . --deep --plugins next,saas,security-basic
+node apps/cli/dist/index.js --help
+node apps/cli/dist/index.js review . --deep
+node apps/cli/dist/index.js review-diff . --base main --target HEAD
+node apps/cli/dist/index.js fix .
 ```
 
-### Run live UI tests
+Built MCP smoke command:
 
 ```bash
-npx turpan review . --ui --scenarios auth,billing
+node apps/mcp-server/dist/index.js --help
 ```
 
-### Generate patches (no apply)
+## Review Modes
+
+The CLI exposes review flags for quick/deep review, UI/runtime checks, dependency audit, plugins, and diff review. Treat mode behavior as implementation-defined until V1 certification passes.
+
+## Multi-Model Support
+
+Turpan has provider-neutral model contracts, model descriptors, routing, specialist review roles, structured output validation, adversarial verification, and evidence-weighted consensus primitives.
+
+Provider-specific production adapters and real provider benchmark results are not yet certified. Source-code transmission to remote providers must remain explicit policy. Local/offline mode is part of the privacy model.
+
+## Runtime & Browser Review
+
+Turpan includes:
+
+- boot discovery contracts
+- runtime supervisor contracts
+- health detection
+- semantic browser-agent contracts
+- safe UI action classification
+- API and CLI review workers
+- runtime-to-source correlation
+
+The current V1 gate still requires real end-to-end browser/runtime eval proof before release certification.
+
+## Verified Fixes
+
+The fix engine supports isolated patch experiment primitives:
+
+```text
+verified finding
+-> fix eligibility
+-> patch candidate
+-> patch budget
+-> temporary worktree
+-> validation
+-> reproduction flip
+-> adversarial patch review
+-> patch evidence report
+```
+
+The active working tree is read-only by default. Autonomous patch application to the user's working tree is not silently enabled.
+
+## Evidence Model
+
+Turpan distinguishes:
+
+```text
+FindingCandidate -> Evidence -> VerificationResult -> Finding
+```
+
+Findings must be backed by evidence. Confidence is expected to be calibrated through eval buckets, not arbitrary labels.
+
+## Supported Languages
+
+Eval-backed in the current corpus:
+
+- TypeScript/JavaScript
+- Python
+
+Capability-described but not V1-claimed:
+
+- Go
+- Rust
+- Java
+- C#
+
+Do not treat syntax detection as full language support.
+
+## Security
+
+Current security model:
+
+- read-only default
+- command safety policy
+- workspace-scoped MCP controls
+- secret redaction
+- provider privacy policy
+- prompt-injection defense for repository text
+- UI action safety policy
+- isolated worktree patch experiments
+
+See [docs/V1_SECURITY_MODEL.md](docs/V1_SECURITY_MODEL.md).
+
+## Benchmarks / Evaluation
+
+Latest local certification attempt:
+
+- Install: passed with `corepack pnpm install --frozen-lockfile`.
+- Build: passed with `corepack pnpm -r run build`.
+- Lint/typecheck: passed with `corepack pnpm -r run lint`.
+- Tests: passed (906 active tests) with `corepack pnpm -r run test`.
+- Agent eval: passed, 22 fixtures run, 22 pass.
+- CLI smoke: passed.
+- MCP smoke: passed.
+
+V1 gate decision: **V1_RC_NO_GO**.
+
+See [docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md](docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md).
+
+## Architecture
+
+```text
+apps/cli         apps/mcp-server
+   |                  |
+   v                  v
+packages/core -> structured review protocol
+   |      \
+   |       -> runtime + intelligence contracts
+   v
+packages/report
+
+packages/fix-engine -> isolated patch experiments
+packages/evals      -> corpus, metrics, gates
+packages/ui-runner  -> browser/runtime support
+```
+
+See [docs/V1_ARCHITECTURE.md](docs/V1_ARCHITECTURE.md).
+
+## MCP / CI
+
+- MCP: [docs/MCP_SERVER.md](docs/MCP_SERVER.md)
+- GitHub Actions: [docs/GITHUB_ACTIONS.md](docs/GITHUB_ACTIONS.md)
+
+## Known Limitations
+
+- Technical release gates pass, but V1 quality metrics lack representative samples.
+- Multi-model provider adapters are not certified with live credentials.
+- Browser/runtime review is not certified end-to-end by eval.
+- Patch success/regression rates are not yet meaningful over a representative corpus.
+- Go/Rust/Java/C# are not V1-supported languages.
+- Some docs outside the V1 canonical set are historical phase reports.
+
+## Development
 
 ```bash
-npx turpan fix . --patch-only
-# Inspect .turpan/runs/<runId>/TURPAN_PATCH.diff
+corepack pnpm install --frozen-lockfile
+corepack pnpm build
+corepack pnpm test
+corepack pnpm -r run lint
+corepack pnpm eval -- --hard-fail
 ```
 
-### Apply only safe fixes
+## Canonical Documentation
 
-```bash
-npx turpan fix . --auto-safe
-```
+- [docs/V1_ARCHITECTURE.md](docs/V1_ARCHITECTURE.md)
+- [docs/V1_AGENT_PROTOCOL.md](docs/V1_AGENT_PROTOCOL.md)
+- [docs/V1_SECURITY_MODEL.md](docs/V1_SECURITY_MODEL.md)
+- [docs/V1_EVAL_STANDARD.md](docs/V1_EVAL_STANDARD.md)
+- [docs/V1_PROVIDER_MODEL.md](docs/V1_PROVIDER_MODEL.md)
+- [docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md](docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md)
 
-### PR review in CI
+## License
 
-```bash
-node apps/cli/dist/index.js review . \
-  --from main \
-  --to HEAD \
-  --fail-on critical
-```
-
----
-
-## 🖥️ Interactive Shell
-
-```bash
-$ npx turpan
-
-🐪 Turpan — Interactive Review Agent
-
-📋 Project Summary
-────────────────────
-  Project: my-saas
-  Type: nextjs
-
-turpan > analyze this project deeply
-  ▶ Running deep review…
-  ❌ Verdict: NO_GO
-  🔴 1 critical, 2 high
-
-turpan > show findings
-  🔴 Hardcoded token in app/api/checkout/route.ts:8
-  🟠 TODO: integrate with real payment provider
-
-turpan > fix safe issues
-  Patch generated at .turpan/runs/<runId>/TURPAN_PATCH.diff
-
-turpan > open report
-  Opening TURPAN_ANALYSIS.html in browser…
-
-turpan > exit
-```
-
----
-
-## 🔐 Safety Model
-
-| Concern | Mitigation |
-|---------|------------|
-| 🚫 Destructive code changes | Read-only by default; `--apply` is explicit |
-| 🚫 Destructive UI actions | Forbidden patterns enforced in the framework |
-| 🔒 Secret leakage | Redaction in logs, reports, MCP outputs |
-| 🛡️ Path traversal via MCP | Blocked at the schema layer |
-| 🔒 Shell injection | `shell: false`, argv parsing only |
-| ⚠️ Orphaned processes | SIGKILL on SIGINT/SIGTERM/exit |
-
----
-
-## 📦 Project Structure
-
-```
-turpan/
-├── apps/
-│   ├── cli/              # CLI entrypoint (turpan command)
-│   └── mcp-server/       # MCP server (turpan mcp serve)
-├── packages/
-│   ├── core/             # Orchestrator, fingerprint, analyzers
-│   ├── ui-runner/        # Playwright UI testing
-│   ├── analyzers/        # Agent-output audit, completeness checks
-│   ├── fix-engine/       # Safe fix engine (patches, rollback)
-│   ├── report/           # Markdown/HTML/JSON report writers
-│   └── shared/           # Shared types, fs, git, process utils
-├── docs/                  # User-facing documentation
-├── examples/              # Sample configs & fixtures
-└── scripts/              # Eval runner
-```
-
----
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| 📖 [Introduction](./docs/INTRODUCTION.md) | What & why |
-| ⚙️ [CLI Usage](./docs/CLI_USAGE.md) | Every command and flag |
-| 🔧 [GitHub Actions](./docs/GITHUB_ACTIONS.md) | PR review workflow |
-| 💬 [Interactive Shell](./docs/INTERACTIVE_SHELL.md) | Natural-language commands |
-| 📝 [Configuration](./docs/CONFIGURATION.md) | `turpan.yml` reference |
-| 🧪 [UI Testing](./docs/UI_TESTING.md) | Playwright scenarios |
-| 🔧 [Fix Engine](./docs/FIX_ENGINE.md) | Patches and apply |
-| 🔌 [Plugins](./docs/PLUGINS.md) | Built-in and authoring |
-| 🤖 [MCP Server](./docs/MCP_SERVER.md) | AI-agent integration |
-| 🛡️ [Security Model](./docs/SECURITY_MODEL.md) | Full safety properties |
-
----
-
-## 🔧 Development
-
-```bash
-pnpm install        # Install all workspace deps
-pnpm build          # Build all packages
-pnpm test           # Run all tests
-pnpm lint           # Type check all packages
-pnpm eval           # Run eval fixtures
-```
-
----
-
-## ✅ Status
-
-**Public Alpha** — See [`PUBLIC_ALPHA_GO_NO_GO.md`](./PUBLIC_ALPHA_GO_NO_GO.md) for the full release-readiness review. Suitable for individual developers and small teams.
-
----
-
-## 📄 License
-
-MIT — See [`LICENSE`](./LICENSE).
-
----
-
-<div align="center">
-
-![Stars](https://img.shields.io/github/stars/Arvuno/Turpan?style=social)
-![Forks](https://img.shields.io/github/forks/Arvuno/Turpan?style=social)
-![Watchers](https://img.shields.io/github/watchers/Arvuno/Turpan?style=social)
-
-</div>
+MIT. See [LICENSE](LICENSE).

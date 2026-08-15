@@ -20,8 +20,7 @@ export class UnusedExportAnalyzer implements Analyzer {
 
   supports(fp: ProjectFingerprint): boolean {
     return (
-      fp.languages.includes('typescript') ||
-      fp.languages.includes('javascript')
+      fp.languages.some(language => ['typescript', 'javascript'].includes(language.toLowerCase()))
     );
   }
 

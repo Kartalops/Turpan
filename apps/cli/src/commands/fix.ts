@@ -32,6 +32,7 @@ import {
   type FixPlan,
   type FixRunResult,
   type InteractiveResult,
+  type ValidationSummary,
 } from '@turpan/fix-engine';
 import type { Finding } from '@turpan/core';
 
@@ -254,7 +255,7 @@ export async function runFixEngine(opts: FixCLIOptions): Promise<FixRunResult> {
   }
 
   // ── Validate ──────────────────────────────────────────────────────────────
-  let validation = { allPassed: true, results: [], totalDurationMs: 0 };
+  let validation: ValidationSummary = { allPassed: true, results: [], totalDurationMs: 0 };
 
   if (!skipValidation && !dryRun) {
     console.log(chalk.cyan('🔬 Validating (build, typecheck, lint, test)…\n'));

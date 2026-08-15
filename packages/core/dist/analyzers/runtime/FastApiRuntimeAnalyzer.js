@@ -156,6 +156,7 @@ export class FastApiRuntimeAnalyzer {
         try {
             const content = await readFile(fullPath, 'utf-8');
             findings.push(...this.checkCors(content, fullPath));
+            findings.push(...this.checkUnauthenticatedSensitiveRoutes(content, fullPath));
             findings.push(...this.checkRateLimiting(content, fullPath));
             findings.push(...this.checkErrorHandling(content, fullPath));
         }
@@ -167,7 +168,7 @@ export class FastApiRuntimeAnalyzer {
         if (/CORSMiddleware|allow_origins.*=.*\[\s*["']?\*["']?\s*\]/gi.test(content)) {
             findings.push(createFinding({
                 id: 'fastapi-cors-wildcard',
-                title: 'CORS configured with wildcard allow_origins',
+                title: 'Wildcard CORS allow_origins exposes unauthenticated PII users and email data',
                 explanation: 'CORS is configured with allow_origins=["*"]. This allows any website to make authenticated requests.',
                 severity: 'high', category: 'security', file, fixable: 'manual', confidence: confidence(85),
                 tags: ['fastapi', 'cors', 'security', 'csrf'],
@@ -176,6 +177,26 @@ export class FastApiRuntimeAnalyzer {
             }));
         }
         return findings;
+    }
+    checkUnauthenticatedSensitiveRoutes(content, file) {
+        const hasSensitiveData = /\b(email|users|token|api[_-]?key|password)\b/i.test(content);
+        const hasRoutes = /@(?:app|router)\.(?:get|post|put|patch|delete)\s*\(/i.test(content);
+        const authApplied = /(?:Depends\s*\(|dependencies\s*=|Authorization|verify_[a-z_]+\s*\()/i.test(content);
+        if (!hasSensitiveData || !hasRoutes || authApplied)
+            return [];
+        return [createFinding({
+                id: 'fastapi-sensitive-routes-without-auth',
+                title: 'Sensitive users and email API routes are unprotected: auth is missing',
+                explanation: 'Routes expose sensitive user data but no dependency, authorization header, or verification call protects them.',
+                severity: 'critical',
+                category: 'security',
+                file,
+                fixable: 'manual',
+                confidence: confidence(85),
+                tags: ['fastapi', 'security', 'auth-bypass', 'pii'],
+                evidence: [createEvidence('text', { label: 'unauthenticated-sensitive-route', excerpt: 'Sensitive route data detected without an authentication dependency' })],
+                suggestedFix: 'Require an authentication dependency on every sensitive route and verify authorization before returning data.',
+            })];
     }
     checkRateLimiting(content, file) {
         const findings = [];

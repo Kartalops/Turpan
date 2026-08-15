@@ -1,0 +1,1 @@
+{"version":3,"file":"autofixTypes.js","sourceRoot":"","sources":["../src/autofixTypes.ts"],"names":[],"mappings":"AAwIA,MAAM,CAAC,MAAM,2BAA2B,GAAsB;IAC5D,SAAS,EAAE,OAAO;IAClB,WAAW,EAAE;QACX,eAAe,EAAE,CAAC;QAClB,eAAe,EAAE,EAAE;QACnB,oBAAoB,EAAE,CAAC;KACxB;IACD,aAAa,EAAE,CAAC;IAChB,sBAAsB,EAAE,CAAC;IACzB,qBAAqB,EAAE,IAAI;IAC3B,uBAAuB,EAAE,IAAI;CAC9B,CAAC"}

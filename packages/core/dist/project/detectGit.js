@@ -3,6 +3,7 @@
  * Enhanced git repository detection with more metadata
  */
 import { execSync } from 'child_process';
+import { resolve } from 'path';
 import { isGitRepository } from '@turpan/shared';
 export function detectGit(projectRoot) {
     const isRepo = isGitRepository(projectRoot);
@@ -14,6 +15,12 @@ export function detectGit(projectRoot) {
             cwd: projectRoot,
             encoding: 'utf-8',
         }).trim();
+        // A fixture or nested directory can live inside a repository without being
+        // a repository boundary itself. Review git metadata only for the selected
+        // project root, not an unrelated parent checkout.
+        if (resolve(rootDir) !== resolve(projectRoot)) {
+            return { isGitRepo: false };
+        }
         const branch = execSync('git branch --show-current', {
             cwd: projectRoot,
             encoding: 'utf-8',

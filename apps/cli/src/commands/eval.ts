@@ -1,17 +1,13 @@
 import { Command } from 'commander';
-import { resolve, join } from 'path';
+import { join } from 'path';
 import { existsSync } from 'fs';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { resolveProjectPath } from '@turpan/shared';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-function resolveProjectPath(input?: string): string {
-  if (!input) return process.cwd();
-  return resolve(process.cwd(), input);
-}
 
 export function createEvalCommand(): Command {
   const cmd = new Command('eval');

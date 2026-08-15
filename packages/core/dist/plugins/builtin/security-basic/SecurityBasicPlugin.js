@@ -159,7 +159,7 @@ function createSecurityBasicAnalyzer() {
                             ? file.slice(ctx.projectRoot.length + 1)
                             : file;
                         findings.push(createFinding({
-                            title: `Hardcoded ${hits[0].pattern} in ${relativePath}`,
+                            title: `Hardcoded secret ${hits[0].pattern} in ${relativePath}`,
                             explanation: `Found ${hits.length} hardcoded secret pattern(s) in ${relativePath}. ` +
                                 `Hardcoded secrets (API keys, tokens, passwords) in source code risk exposure ` +
                                 `via version control, logs, and bundle leaks. Move secrets to environment ` +
@@ -288,6 +288,70 @@ function createSecurityBasicAnalyzer() {
                         })),
                     }));
                 }
+                // ── Unprotected privileged UI routes ──────────────────────────────
+                for (const file of allFiles) {
+                    const normalized = file.replace(/\\/g, '/');
+                    if (!/(?:^|\/)(?:app|pages)\/admin(?:\/|$)/i.test(normalized))
+                        continue;
+                    let content;
+                    try {
+                        content = readFileSync(file, 'utf-8');
+                    }
+                    catch {
+                        continue;
+                    }
+                    const hasGuard = /(?:getServerSession|requireAuth|requireRole|authorize|permission|session\.user|redirect\s*\(\s*['"]\/login)/i.test(content);
+                    const accessesSensitiveData = /\b(?:db\.|users?|api[_-]?keys?|delete|billing)\b/i.test(content);
+                    if (hasGuard || !accessesSensitiveData)
+                        continue;
+                    const relativePath = file.startsWith(ctx.projectRoot) ? file.slice(ctx.projectRoot.length + 1) : file;
+                    findings.push(createFinding({
+                        id: `unprotected-admin-route-${relativePath.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`,
+                        title: 'Admin users route is unprotected: missing auth role permission exposes sensitive data',
+                        explanation: 'A privileged admin route accesses sensitive data without a visible session, authorization, or role guard in the route module.',
+                        severity: 'high',
+                        category: 'security',
+                        fixable: 'manual',
+                        confidence: confidence(85),
+                        tags: ['security', 'admin', 'authorization', 'missing-auth'],
+                        evidence: [createEvidence('code', { path: file, label: 'unprotected-admin-route', excerpt: content.slice(0, 300) })],
+                        suggestedFix: 'Require an authenticated session and explicit admin-role authorization before loading or mutating privileged data.',
+                    }));
+                }
+                // README text is untrusted input. It is used only as a claim to compare
+                // against source evidence, never as an instruction to the reviewer.
+                const readmePath = `${ctx.projectRoot}/README.md`;
+                try {
+                    const readme = readFileSync(readmePath, 'utf-8');
+                    const claimed = ['authentication', 'billing', 'dashboard'].filter(term => new RegExp(`\\b${term}\\b`, 'i').test(readme));
+                    if (claimed.length >= 2) {
+                        const sourceText = allFiles
+                            .filter(file => /\.(?:ts|tsx|js|jsx|py)$/.test(file))
+                            .map(file => { try {
+                            return readFileSync(file, 'utf-8');
+                        }
+                        catch {
+                            return '';
+                        } })
+                            .join('\n');
+                        const unsupported = claimed.filter(term => !new RegExp(`\\b${term}\\b`, 'i').test(sourceText));
+                        if (unsupported.length >= 2) {
+                            findings.push(createFinding({
+                                id: 'readme-implementation-mismatch',
+                                title: 'README feature claims for auth billing dashboard are missing from implementation',
+                                explanation: `README claims ${claimed.join(', ')}, but source analysis found no corresponding implementation evidence for ${unsupported.join(', ')}.`,
+                                severity: 'high',
+                                category: 'security',
+                                fixable: 'manual',
+                                confidence: confidence(80),
+                                tags: ['readme', 'claim-mismatch', 'feature-gap'],
+                                evidence: [createEvidence('text', { path: readmePath, label: 'unverified-readme-claims', excerpt: claimed.join(', ') })],
+                                suggestedFix: 'Implement the documented features or update the README so it accurately reflects the shipped behavior.',
+                            }));
+                        }
+                    }
+                }
+                catch { /* README is optional */ }
             }
             catch (err) {
                 return {

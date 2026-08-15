@@ -190,6 +190,8 @@ export class CommandMemory {
       lastRunMetadata: this.memory.lastRunMetadata,
       projectStarted: this.memory.projectStarted,
       selectedMode: this.memory.selectedMode,
+      historyIndex: this.memory.historyIndex,
+      historyExhaustedForward: this.memory.historyExhaustedForward,
       commandCount: this.memory.commandHistory.length,
     };
   }

@@ -173,7 +173,13 @@ async function findStickyCommentId(
   });
   if (!res.ok) return null;
 
-  const comments: Array<{ id: number; body: string }> = await res.json();
+  const payload: unknown = await res.json();
+  if (!Array.isArray(payload)) return null;
+  const comments = payload.filter((comment): comment is { id: number; body: string } =>
+    typeof comment === 'object' && comment !== null &&
+    typeof (comment as { id?: unknown }).id === 'number' &&
+    typeof (comment as { body?: unknown }).body === 'string'
+  );
   for (const c of comments) {
     if (c.body.includes(STICKY_MARKER)) {
       return c.id;

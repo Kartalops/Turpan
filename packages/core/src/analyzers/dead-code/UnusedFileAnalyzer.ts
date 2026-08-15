@@ -47,8 +47,7 @@ export class UnusedFileAnalyzer implements Analyzer {
     return (
       fp.appType !== 'unknown' ||
       fp.uiFramework !== 'none' ||
-      fp.languages.includes('typescript') ||
-      fp.languages.includes('javascript')
+      fp.languages.some(language => ['typescript', 'javascript'].includes(language.toLowerCase()))
     );
   }
 
@@ -75,7 +74,7 @@ export class UnusedFileAnalyzer implements Analyzer {
         findings.push(
           createFinding({
             id: `unused-file-${relPath.replace(/[^a-z0-9]/gi, '-')}`,
-            title: `Likely orphaned file: ${relPath}`,
+            title: `Unused file: dead/unwired component ${relPath}`,
             explanation: `No other file imports "${basename(file)}". This file may be unused or incorrectly named/placed.`,
             severity: 'low',
             category: 'dead-code',

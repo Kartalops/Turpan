@@ -128,26 +128,27 @@ export async function runReview(orchConfig: OrchestratorConfig): Promise<Orchest
   // Load plugins
   const pluginRegistry = new PluginRegistry();
   let loadedPluginIds: string[] = [];
-  if (enabledPlugins !== undefined || config.plugins?.length) {
-    const pluginResult = await loadPlugins(pluginRegistry, {
-      projectRoot: projectPath,
-      fingerprint,
-      enabledPlugins: enabledPlugins ?? config.plugins,
-      config: config,
-      signal,
-    });
-    loadedPluginIds = pluginResult.loaded;
+  // Built-in plugins provide the language and security analyzers used by a
+  // normal review. loadPlugins itself chooses configured or auto-detected
+  // plugins, so skipping it here silently removed those analyzers.
+  const pluginResult = await loadPlugins(pluginRegistry, {
+    projectRoot: projectPath,
+    fingerprint,
+    enabledPlugins: enabledPlugins ?? config.plugins,
+    config,
+    signal,
+  });
+  loadedPluginIds = pluginResult.loaded;
 
-    // Bridge plugin-registered analyzers into the global analyzer registry
-    // so that the staticQualityStage picks them up.
-    for (const entry of pluginRegistry.listAnalyzers()) {
-      try {
-        analyzerRegistry.register(entry.analyzer);
-      } catch (err) {
-        // Already registered — ignore
-        if (!(err instanceof Error) || !err.message.includes('already registered')) {
-          throw err;
-        }
+  // Bridge plugin-registered analyzers into the global analyzer registry
+  // so that the staticQualityStage and runtime stage pick them up.
+  for (const entry of pluginRegistry.listAnalyzers()) {
+    try {
+      analyzerRegistry.register(entry.analyzer);
+    } catch (err) {
+      // Already registered — ignore
+      if (!(err instanceof Error) || !err.message.includes('already registered')) {
+        throw err;
       }
     }
   }

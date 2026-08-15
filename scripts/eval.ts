@@ -155,13 +155,13 @@ function findCli(): string {
     }
     return systemCli;
   }
-  // Use CLI source with tsx runner (avoids tsup caching issues with workspace deps)
-  if (existsSync(CLI_SRC)) return `node --experimental-strip-types ${CLI_SRC}`;
-  // Fallback to dist if source not available
+  // The source tree uses ESM .js specifiers that Node's strip-types loader
+  // cannot resolve. Prefer the production build that users actually execute.
   if (existsSync(CLI_DIST)) {
-    // Return a wrapper that uses tsx to run the source directly
-    return `pnpm exec tsx ${CLI_SRC}`;
+    return `node ${CLI_DIST}`;
   }
+  // Development fallback: tsx resolves TypeScript source and its ESM imports.
+  if (existsSync(CLI_SRC)) return `pnpm exec tsx ${CLI_SRC}`;
   throw new Error(`CLI not found at ${CLI_SRC} or ${CLI_DIST}. Run 'pnpm build' first.`);
 }
 

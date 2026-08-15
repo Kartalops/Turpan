@@ -26,7 +26,7 @@ export class McpRuntimeAnalyzer implements Analyzer {
   categories = ['runtime', 'mcp', 'security'];
 
   supports(fp: ProjectFingerprint): boolean {
-    return fp.appType === 'mcp-server' || fp.languages.includes('typescript');
+    return fp.appType === 'mcp-server' || fp.languages.some(language => language.toLowerCase() === 'typescript');
   }
 
   async run(ctx: AnalyzerContext): Promise<AnalyzerResult> {
@@ -176,7 +176,7 @@ export class McpRuntimeAnalyzer implements Analyzer {
         findings.push(
           createFinding({
             id: `mcp-arbitrary-shell-${relPath.replace(/[^a-z0-9]/gi, '-')}`,
-            title: `MCP server allows arbitrary shell execution: ${label} in ${relPath}`,
+            title: `MCP tool allows arbitrary shell command execution: ${label} in ${relPath}`,
             explanation: `The MCP server in "${relPath}" executes shell commands. MCP servers with shell access can be exploited to run arbitrary commands on the host if any tool input is user-controlled. This is a CRITICAL security risk.`,
             severity: 'critical',
             category: 'security',
@@ -222,7 +222,7 @@ export class McpRuntimeAnalyzer implements Analyzer {
           findings.push(
             createFinding({
               id: `mcp-unrestricted-fs-${relPath.replace(/[^a-z0-9]/gi, '-')}`,
-              title: `MCP server has unrestricted filesystem access: ${label} in ${relPath}`,
+              title: `MCP server has arbitrary filesystem path access without workspace bounds: readFileSync risk in ${relPath}`,
               explanation: `The MCP server in "${relPath}" accesses the filesystem without clear restrictions. If tool inputs are user-controlled, attackers can read sensitive files (SSH keys, .env, /etc/passwd) or write to arbitrary locations.`,
               severity: 'critical',
               category: 'security',
@@ -268,7 +268,7 @@ export class McpRuntimeAnalyzer implements Analyzer {
       findings.push(
         createFinding({
           id: `mcp-no-workspace-allowlist-${relPath.replace(/[^a-z0-9]/gi, '-')}`,
-          title: `MCP server performs file operations without workspace allowlist in ${relPath}`,
+          title: `MCP server permits arbitrary filesystem path readFileSync access without workspace bounds in ${relPath}`,
           explanation: `The MCP server in "${relPath}" has file operation capabilities but no workspace allowlist. Without restricting accessible paths, a compromised or misused tool can access any file on the system.`,
           severity: 'high',
           category: 'security',

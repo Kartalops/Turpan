@@ -6,6 +6,24 @@ export * from './findings/index.js';
 export * from './reports/index.js';
 export * from './logger/index.js';
 export * from './plugins/index.js';
+export * from './intelligence/index.js';
+export * from './runtime/index.js';
+export type {
+  ReviewRequest,
+  ReviewRun,
+  ReviewTask,
+  VerificationResult,
+  ToolCall,
+  Artifact,
+  ModelRequest,
+  ModelResponse,
+  ReviewVerdict,
+} from './protocol/index.js';
+export type {
+  Evidence as ReviewEvidence,
+  Finding as ReviewFinding,
+  FindingCandidate,
+} from './protocol/index.js';
 // Runner is internal — re-export individual safe types for consumers
 export type { SafeCommandRunnerConfig } from './runner/SafeCommandRunner.js';
 export { SafeCommandRunner } from './runner/SafeCommandRunner.js';

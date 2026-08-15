@@ -30,7 +30,7 @@ import { existsSync as existsSync2, readFileSync } from "fs";
 import { runAnalysis as coreRunAnalysis, detectProject } from "@turpan/core";
 import { runAgentOutputAudit } from "@turpan/analyzers";
 import { runUiTest } from "@turpan/ui-runner";
-import { deriveVerdict } from "@turpan/report";
+import { loadLatestRunArtifacts, summarizeFindingSeverities } from "@turpan/report";
 
 // src/security/workspace.ts
 import { resolve, isAbsolute, join, normalize } from "path";
@@ -206,7 +206,7 @@ var SENSITIVE_ENV_VARS = /* @__PURE__ */ new Set([
 function redactSecrets(input) {
   if (!input || typeof input !== "string") return input ?? "";
   let result = input;
-  for (const { pattern, label } of SECRET_PATTERNS) {
+  for (const [pattern, label] of SECRET_PATTERNS) {
     result = result.replace(pattern, label);
   }
   result = result.replace(
@@ -272,39 +272,35 @@ async function ensureRunDir(projectPath) {
   const baseRunPath = join2(projectPath, ".turpan", "runs");
   return createTimestampDir(baseRunPath);
 }
-function loadLatestRunArtifacts(projectPath) {
-  const latest = getLatestRunPath(projectPath);
-  if (!latest) return { findings: [], scorecard: { overall: 0, categories: { correctness: 0, security: 0, performance: 0, maintainability: 0, codeCoverage: 0 }, findingsCount: 0, criticalIssues: 0 }, runId: "unknown" };
-  const findingsPath = join2(latest, "TURPAN_FINDINGS.json");
-  const scorecardPath = join2(latest, "TURPAN_SCORECARD.json");
-  const runId = latest.split("/").pop() ?? "unknown";
-  let findings = [];
-  let scorecard = { overall: 0, categories: { correctness: 0, security: 0, performance: 0, maintainability: 0, codeCoverage: 0 }, findingsCount: 0, criticalIssues: 0 };
-  if (existsSync2(findingsPath)) {
-    try {
-      findings = JSON.parse(readFileSync(findingsPath, "utf-8")).findings ?? [];
-    } catch {
-    }
-  }
-  if (existsSync2(scorecardPath)) {
-    try {
-      scorecard = JSON.parse(readFileSync(scorecardPath, "utf-8"));
-    } catch {
-    }
-  }
-  return { findings, scorecard, runId };
+var CORE_CATEGORIES = /* @__PURE__ */ new Set([
+  "project",
+  "build",
+  "test",
+  "lint",
+  "typecheck",
+  "security",
+  "ui",
+  "accessibility",
+  "performance",
+  "architecture",
+  "dead-code",
+  "dependency",
+  "agent-output",
+  "maintainability",
+  "runtime",
+  "api-design",
+  "error-boundary",
+  "config",
+  "unknown-project"
+]);
+var CORE_SEVERITIES = /* @__PURE__ */ new Set(["critical", "high", "medium", "low", "info"]);
+function isCoreFinding(finding) {
+  return CORE_CATEGORIES.has(finding.category) && CORE_SEVERITIES.has(finding.severity) && Array.isArray(finding.evidence) && finding.evidence.length > 0 && ["auto", "manual", "none"].includes(finding.fixable) && typeof finding.confidence === "number" && Array.isArray(finding.tags);
 }
-function summarizeFindings(findings) {
-  const critical = findings.filter((f) => f.severity === "critical").length;
-  const high = findings.filter((f) => f.severity === "high").length;
-  const medium = findings.filter((f) => f.severity === "medium").length;
-  const low = findings.filter((f) => f.severity === "low").length;
-  const parts = [];
-  if (critical > 0) parts.push(`${critical} critical`);
-  if (high > 0) parts.push(`${high} high`);
-  if (medium > 0) parts.push(`${medium} medium`);
-  if (low > 0) parts.push(`${low} low`);
-  return parts.length > 0 ? parts.join(", ") : "clean";
+function deriveArtifactVerdict(findings) {
+  if (findings.some((finding) => finding.severity === "critical")) return "NO_GO";
+  if (findings.some((finding) => finding.severity === "high")) return "CONDITIONAL_GO";
+  return "GO";
 }
 async function reviewProject(input, emitLog) {
   const { projectPath, mode, includeUi, includeRuntime, includeSecurity, includeAgentAudit, taskFile, fixMode } = input;
@@ -320,7 +316,7 @@ async function reviewProject(input, emitLog) {
   emitLog?.(`[turpan.review_project] Starting ${mode} review on ${projectRoot}`);
   try {
     const timeoutMs = mode === "deep" ? 3e5 : 12e4;
-    const coreRunPath = await coreRunAnalysis({
+    await coreRunAnalysis({
       projectPath: projectRoot,
       deepAnalysis: mode === "deep",
       uiAnalysis: includeUi,
@@ -343,8 +339,8 @@ async function reviewProject(input, emitLog) {
       }
     }
     const { findings, scorecard } = loadLatestRunArtifacts(projectRoot);
-    const verdict = deriveVerdict(scorecard, findings);
-    const summary = summarizeFindings(findings);
+    const verdict = deriveArtifactVerdict(findings);
+    const summary = summarizeFindingSeverities(findings);
     return {
       runId,
       verdict,
@@ -380,7 +376,7 @@ async function reviewDiff(input, emitLog) {
   return {
     runId,
     reportPath: join2(runPath, "TURPAN_ANALYSIS.md"),
-    findingsSummary: `${findings.length} findings (${summarizeFindings(findings)})`
+    findingsSummary: `${findings.length} findings (${summarizeFindingSeverities(findings)})`
   };
 }
 async function liveUiTest(input, emitLog) {
@@ -397,6 +393,7 @@ async function liveUiTest(input, emitLog) {
   const report = await runUiTest({
     projectRoot,
     runId,
+    fingerprint,
     url: input.url,
     headed: input.headed,
     mobileOnly: input.mobile,
@@ -461,13 +458,25 @@ async function fixFindings(input, emitLog) {
     return { patchPath: "", applied: 0, validationSummary: "No matching findings to fix" };
   }
   const runId = (/* @__PURE__ */ new Date()).toISOString().replace(/[:.]/g, "-");
-  const { buildFixPlan: buildPlan, applyFixCandidates: applyFix } = await import("@turpan/fix-engine");
-  const plan = buildPlan({ findings: targetFindings, projectRoot, fixMode });
-  const result = await applyFix({ plan, projectRoot, fixMode });
+  const { buildFixPlan: buildPlan, applyFixCandidates: applyFix, generatePatch, verifyPatch } = await import("@turpan/fix-engine");
+  const coreFindings = targetFindings.filter(isCoreFinding);
+  if (coreFindings.length === 0) {
+    return { patchPath: "", applied: 0, validationSummary: "No evidence-backed findings eligible for fixing" };
+  }
+  const plan = buildPlan({ findings: coreFindings, projectRoot, fixMode });
+  const patch = generatePatch(plan.applied);
+  const result = await applyFix(plan.applied, {
+    projectRoot,
+    runId: plan.runId,
+    useWorktree: fixMode === "apply",
+    dryRun: fixMode === "patch-only",
+    backup: fixMode === "apply"
+  });
+  const validation = result.success && fixMode === "apply" ? await verifyPatch(plan.applied, { projectRoot, checks: plan.requiredChecks, timeoutMs: 12e4 }) : { allPassed: result.success, results: [], totalDurationMs: 0 };
   return {
-    patchPath: result.patchResult.patchContent ? join2(projectRoot, ".turpan", "runs", runId, "TURPAN_PATCH.diff") : "",
-    applied: result.applied.length,
-    validationSummary: result.validation.allPassed ? `All ${result.validation.results.length} validation checks passed` : `${result.validation.results.filter((r) => !r.passed).length}/${result.validation.results.length} checks failed`
+    patchPath: patch.patchContent ? join2(projectRoot, ".turpan", "runs", runId, "TURPAN_PATCH.diff") : "",
+    applied: result.modified.length,
+    validationSummary: validation.allPassed ? `All ${validation.results.length} validation checks passed` : `${validation.results.filter((check) => !check.passed).length}/${validation.results.length} checks failed`
   };
 }
 async function getReport(input, emitLog) {
@@ -831,7 +840,9 @@ var TurpanMcpServer = class {
       version: config.version ?? DEFAULT_VERSION,
       rateLimit: config.rateLimit ?? DEFAULT_RATE_LIMIT,
       timeouts: config.timeouts ?? DEFAULT_TIMEOUTS,
-      sessionId: this.sessionId
+      sessionId: this.sessionId,
+      concurrencyGuardConfig: config.concurrencyGuardConfig ?? {},
+      auditLogConfig: config.auditLogConfig ?? {}
     };
     if (this.config.workspaceRoots.length > 0) {
       setWorkspaceAllowlist(this.config.workspaceRoots);
@@ -865,9 +876,9 @@ var TurpanMcpServer = class {
       const { name, arguments: rawArgs } = request.params;
       const args = rawArgs ?? {};
       const emitLog = (msg) => {
-        server.sendNotification(LoggingMessageNotificationSchema, {
-          level: this.config.logLevel,
-          data: msg
+        server.notification({
+          method: LoggingMessageNotificationSchema.shape.method.value,
+          params: { level: this.config.logLevel, data: msg }
         });
       };
       const rateLimitError = this.rateLimiter.check(name);
@@ -1021,6 +1032,7 @@ var TurpanMcpServer = class {
     });
     server.setRequestHandler(SetLevelRequestSchema, async (request) => {
       this.config.logLevel = request.params.level;
+      return {};
     });
   }
   /**

@@ -13,6 +13,7 @@ const ALL_STAGES = [
     { id: 'static-quality', label: 'Static Quality', categories: ['maintainability', 'dead-code'] },
     { id: 'security-basic', label: 'Security (Basic)', categories: ['security'] },
     { id: 'dead-code-basic', label: 'Dead Code (Basic)', categories: ['dead-code'] },
+    { id: 'runtime', label: 'Runtime Review', categories: ['runtime'] },
     { id: 'ui-live-basic', label: 'UI Live (Basic)', categories: ['ui', 'accessibility'] },
     { id: 'report', label: 'Report Generation', categories: ['project'] },
 ];
@@ -59,6 +60,7 @@ export function generateReviewPlan(fingerprint, options = {}) {
     // ── Dead code (deep only) ───────────────────────────────────────────────
     if (deepAnalysis) {
         stages.push({ id: 'dead-code-basic', label: 'Dead Code (Basic)', reason: 'Deep analysis enabled', order: order++ });
+        stages.push({ id: 'runtime', label: 'Runtime Review', reason: 'Deep analysis enabled', order: order++ });
     }
     // ── UI Live stage ───────────────────────────────────────────────────────
     // Only for projects with UI frameworks AND UI analysis explicitly enabled
@@ -73,7 +75,7 @@ export function generateReviewPlan(fingerprint, options = {}) {
     }
     // ── Python-specific stages ──────────────────────────────────────────────
     // For Python bots, FastAPI, etc. — skip UI, add Python-appropriate stages
-    const isPython = fp.languages.includes('python') || fp.appType === 'python-bot' || fp.appType === 'fastapi';
+    const isPython = fp.languages.some(language => language.toLowerCase() === 'python') || fp.appType === 'python-bot' || fp.appType === 'fastapi';
     if (isPython && !hasUI) {
         // Python backends: still run build/test/lint via shell commands if available
         if (deepAnalysis && !fp.buildCommands.length) {
@@ -93,6 +95,7 @@ export function generateReviewPlan(fingerprint, options = {}) {
         'static-quality': '10–60s',
         'security-basic': '5–30s',
         'dead-code-basic': '10–60s',
+        'runtime': '10–60s',
         'ui-live-basic': '30–180s',
         'report': '< 1s',
     };
@@ -104,7 +107,7 @@ export function generateReviewPlan(fingerprint, options = {}) {
         stages,
         totalEstimatedTime,
         includesUI: stages.some(s => s.id === 'ui-live-basic'),
-        includesPython: fp.languages.includes('python') || fp.appType === 'fastapi' || fp.appType === 'python-bot',
+        includesPython: fp.languages.some(language => language.toLowerCase() === 'python') || fp.appType === 'fastapi' || fp.appType === 'python-bot',
         includesSecurity: stages.some(s => s.id === 'security-basic'),
         deepAnalysis,
     };

@@ -23,7 +23,7 @@ const manifest = {
 export const pythonPlugin = {
     manifest,
     supports(fp) {
-        return (fp.languages.includes('python') ||
+        return (fp.languages.some(language => language.toLowerCase() === 'python') ||
             fp.appType === 'python-bot' ||
             fp.appType === 'fastapi');
     },
@@ -38,7 +38,7 @@ function createPythonAnalyzer() {
         name: 'Python Specific Analyzer',
         categories: ['maintainability', 'dependency'],
         supports(fp) {
-            return (fp.languages.includes('python') ||
+            return (fp.languages.some(language => language.toLowerCase() === 'python') ||
                 fp.appType === 'python-bot' ||
                 fp.appType === 'fastapi');
         },
@@ -159,7 +159,7 @@ function createPythonAnalyzer() {
                 if (silentExHits.length > 0) {
                     findings.push(createFinding({
                         id: 'python-silent-exception',
-                        title: `Exception silently swallowed — ${silentExHits.length} location(s)`,
+                        title: `Broad exception with pass silently swallowed — ${silentExHits.length} location(s)`,
                         explanation: `Found ${silentExHits.length} exception handler(s) that catch an exception but ` +
                             `do nothing (only 'pass'). Errors are hidden from operators and debugging is ` +
                             `impossible. At minimum, log the exception or re-raise it.`,
@@ -207,8 +207,9 @@ function createPythonAnalyzer() {
                         if (ROUTE_DECL_RE.test(line))
                             hasRoute = true;
                     }
-                    // If auth functions exist but no route uses them, flag it
-                    if (hasAuthFunc && !hasRoute && authFuncLines.length > 0) {
+                    const authApplied = /(?:Depends\s*\(\s*verify_|dependencies\s*=|@\w*\.\w+\([^\n]*verify_)/i.test(content);
+                    // Auth helpers are only protective when routes actually invoke them.
+                    if (hasAuthFunc && hasRoute && !authApplied && authFuncLines.length > 0) {
                         const relPath = file.startsWith(ctx.projectRoot)
                             ? file.slice(ctx.projectRoot.length + 1)
                             : file;
@@ -222,7 +223,7 @@ function createPythonAnalyzer() {
                 if (authNotAppliedHits.length > 0) {
                     findings.push(createFinding({
                         id: 'python-auth-not-applied',
-                        title: `Auth logic defined but not applied to ${authNotAppliedHits.length} route(s)`,
+                        title: `Sensitive routes are unprotected: verify_api_key auth is missing on ${authNotAppliedHits.length} route file(s)`,
                         explanation: `Found authentication or authorization functions (verify_*, check_*, authenticate_*) ` +
                             `that are defined but no route decorators apply them. This means routes are unprotected. ` +
                             `Apply auth decorators to routes or call the auth function inside route handlers.`,

@@ -2060,6 +2060,83 @@ var ReportOpenCommand = class {
   }
 };
 
+// src/runArtifacts.ts
+import { existsSync as existsSync2, readFileSync, readlinkSync } from "fs";
+import { join as join11 } from "path";
+function createEmptyScorecard() {
+  return {
+    overall: 0,
+    categories: {
+      correctness: 0,
+      security: 0,
+      performance: 0,
+      maintainability: 0,
+      codeCoverage: 0
+    },
+    findingsCount: 0,
+    criticalIssues: 0
+  };
+}
+function countFindingsBySeverity(findings) {
+  return findings.reduce((counts, finding) => {
+    counts[finding.severity] += 1;
+    return counts;
+  }, { critical: 0, high: 0, medium: 0, low: 0, info: 0 });
+}
+function summarizeFindingSeverities(findings) {
+  const counts = countFindingsBySeverity(findings);
+  const parts = [
+    counts.critical > 0 ? `${counts.critical} critical` : null,
+    counts.high > 0 ? `${counts.high} high` : null,
+    counts.medium > 0 ? `${counts.medium} medium` : null,
+    counts.low > 0 ? `${counts.low} low` : null,
+    counts.info > 0 ? `${counts.info} info` : null
+  ].filter((value) => value !== null);
+  return parts.length > 0 ? parts.join(", ") : "clean";
+}
+function loadRunArtifacts(runPath) {
+  const findingsPath = join11(runPath, "TURPAN_FINDINGS.json");
+  const scorecardPath = join11(runPath, "TURPAN_SCORECARD.json");
+  const runId = runPath.split("/").pop() ?? "unknown";
+  let findings = [];
+  let scorecard = createEmptyScorecard();
+  if (existsSync2(findingsPath)) {
+    try {
+      findings = JSON.parse(readFileSync(findingsPath, "utf-8")).findings ?? [];
+    } catch {
+      findings = [];
+    }
+  }
+  if (existsSync2(scorecardPath)) {
+    try {
+      scorecard = JSON.parse(readFileSync(scorecardPath, "utf-8"));
+    } catch {
+      scorecard = createEmptyScorecard();
+    }
+  }
+  return { runId, findings, scorecard };
+}
+function getLatestRunPath(projectPath) {
+  const latest = join11(projectPath, ".turpan", "runs", "latest");
+  if (!existsSync2(latest)) return null;
+  try {
+    return readlinkSync(latest);
+  } catch {
+    return latest;
+  }
+}
+function loadLatestRunArtifacts(projectPath) {
+  const latest = getLatestRunPath(projectPath);
+  if (!latest) {
+    return {
+      runId: "unknown",
+      findings: [],
+      scorecard: createEmptyScorecard()
+    };
+  }
+  return loadRunArtifacts(latest);
+}
+
 // src/generateReports.ts
 import { mkdirSync } from "fs";
 async function generateReports(data) {
@@ -2127,6 +2204,12 @@ export {
   ReportOpenCommand,
   RunSummaryWriter,
   ScorecardWriter,
+  countFindingsBySeverity,
+  createEmptyScorecard,
   deriveVerdict,
-  generateReports
+  generateReports,
+  getLatestRunPath,
+  loadLatestRunArtifacts,
+  loadRunArtifacts,
+  summarizeFindingSeverities
 };

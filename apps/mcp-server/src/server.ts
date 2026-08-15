@@ -39,7 +39,7 @@ import {
   getFindings,
 } from './tools/review.js';
 import { listTurpanResources, readTurpanResource, TURPAN_PROTOCOL } from './resources/handler.js';
-import { validateProjectPath, setWorkspaceAllowlist, formatSafeError } from './security/workspace.js';
+import { validateProjectPath, setWorkspaceAllowlist } from './security/workspace.js';
 import { redactError, formatSafeError as formatSafeErrorRedact } from './security/redact.js';
 import {
   reviewProjectInputSchema,
@@ -222,6 +222,8 @@ export class TurpanMcpServer {
       rateLimit: config.rateLimit ?? DEFAULT_RATE_LIMIT,
       timeouts: config.timeouts ?? DEFAULT_TIMEOUTS,
       sessionId: this.sessionId,
+      concurrencyGuardConfig: config.concurrencyGuardConfig ?? {},
+      auditLogConfig: config.auditLogConfig ?? {},
     };
 
     // Set workspace allowlist
@@ -268,9 +270,9 @@ export class TurpanMcpServer {
       const args = (rawArgs ?? {}) as Record<string, unknown>;
 
       const emitLog = (msg: string) => {
-        server.sendNotification(LoggingMessageNotificationSchema, {
-          level: this.config.logLevel,
-          data: msg,
+        server.notification({
+          method: LoggingMessageNotificationSchema.shape.method.value,
+          params: { level: this.config.logLevel, data: msg },
         });
       };
 
@@ -462,6 +464,7 @@ export class TurpanMcpServer {
     // Set log level
     server.setRequestHandler(SetLevelRequestSchema, async (request) => {
       this.config.logLevel = request.params.level as 'debug' | 'info' | 'warn' | 'error';
+      return {};
     });
   }
 

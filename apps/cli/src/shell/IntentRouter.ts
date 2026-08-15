@@ -272,7 +272,7 @@ export class IntentRouter {
     // (handled above via intent mapping)
 
     // Special case: "clean unused code" → cleanup_scan style, never delete
-    if (intent === 'clean' || intent === 'cleanup-review') {
+    if (intent === 'clean' || intent === 'cleanup_review') {
       return { intent, label, action: 'report', description, runOptions: { ...finalOptions, deepAnalysis: true }, plugins };
     }
 

@@ -8,6 +8,7 @@
  *  - Multi-tenancy checks
  */
 
+import { readFileSync } from 'fs';
 import type { Plugin, PluginManifest, PluginUIScenario } from '../../Plugin.js';
 import type { PluginContext } from '../../PluginContext.js';
 import type { PluginRegistry } from '../../PluginRegistry.js';
@@ -176,10 +177,15 @@ function createSaaSAnalyzer(): Analyzer {
 
         // Check for auth protection on sensitive routes
         const sensitivePatterns = ['dashboard', 'settings', 'billing', 'account', 'profile'];
-        const unprotectedSensitive = routeFiles.filter(f =>
-          sensitivePatterns.some(s => f.toLowerCase().includes(s)) &&
-          !f.includes('auth') && !f.includes('login')
-        );
+        const unprotectedSensitive: string[] = [];
+        for (const file of routeFiles) {
+          if (!sensitivePatterns.some(pattern => file.toLowerCase().includes(pattern))) continue;
+          if (/auth|login/i.test(file)) continue;
+          let content: string;
+          try { content = readFileSync(file, 'utf-8'); } catch { continue; }
+          const hasGuard = /(?:getServerSession|requireAuth|requireRole|authorize|session\.user|cookies\s*\(\).*get\s*\(\s*['"]auth)/is.test(content);
+          if (!hasGuard) unprotectedSensitive.push(file);
+        }
 
         if (unprotectedSensitive.length > 0) {
           findings.push({

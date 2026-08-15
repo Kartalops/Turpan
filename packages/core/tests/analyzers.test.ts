@@ -3,7 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { join } from 'path';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import {
   UnusedDependencyAnalyzer,
 } from '../src/analyzers/dependencies/index.js';
@@ -23,7 +24,8 @@ import {
 } from '../src/analyzers/architecture-basic/index.js';
 import type { AnalyzerContext } from '../src/analyzers/Analyzer.js';
 
-const FIXTURE_ROOT = '/home/oguz/Masaüstü/TurPAN-Review-Agent/packages/core/tests/fixtures/code-quality-fixture';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const FIXTURE_ROOT = join(__dirname, 'fixtures', 'code-quality-fixture');
 
 const MOCK_FP = {
   projectRoot: FIXTURE_ROOT,

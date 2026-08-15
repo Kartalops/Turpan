@@ -1,5 +1,5 @@
-import { resolve, join, isAbsolute } from 'path';
-import { existsSync, readFileSync, readdirSync, statSync, mkdirSync } from 'fs';
+import { dirname, join, resolve, isAbsolute } from 'path';
+import { existsSync, readFileSync, mkdirSync, writeFileSync, readdirSync, statSync } from 'fs';
 export function resolveProjectPath(input) {
     if (!input) {
         return process.cwd();
@@ -7,10 +7,28 @@ export function resolveProjectPath(input) {
     return isAbsolute(input) ? input : resolve(process.cwd(), input);
 }
 export function ensureDir(dirPath) {
-    // Placeholder - will use mkdir in real implementation
+    if (!existsSync(dirPath)) {
+        mkdirSync(dirPath, { recursive: true });
+    }
 }
 export function fileExists(filePath) {
     return existsSync(filePath);
+}
+export function isDirectory(path) {
+    try {
+        return statSync(path).isDirectory();
+    }
+    catch {
+        return false;
+    }
+}
+export function listDirectory(path) {
+    try {
+        return readdirSync(path);
+    }
+    catch {
+        return [];
+    }
 }
 export function readJsonFile(filePath) {
     try {
@@ -22,47 +40,12 @@ export function readJsonFile(filePath) {
     }
 }
 export function writeJsonFile(filePath, data) {
-    // Placeholder - will use writeFile in real implementation
-}
-export function listDirectory(dirPath, recursive = false) {
-    try {
-        const entries = [];
-        const items = readdirSync(dirPath, { withFileTypes: true });
-        for (const item of items) {
-            const fullPath = join(dirPath, item.name);
-            entries.push(fullPath);
-            if (recursive && item.isDirectory()) {
-                entries.push(...listDirectory(fullPath, true));
-            }
-        }
-        return entries;
-    }
-    catch {
-        return [];
-    }
-}
-export function isDirectory(path) {
-    try {
-        return statSync(path).isDirectory();
-    }
-    catch {
-        return false;
-    }
-}
-export function isFile(path) {
-    try {
-        return statSync(path).isFile();
-    }
-    catch {
-        return false;
-    }
+    ensureDir(dirname(filePath));
+    writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 export function getPackageJsonInfo(dirPath) {
     const pkgPath = join(dirPath, 'package.json');
     return readJsonFile(pkgPath);
-}
-export function getTurpanConfigPath(dirPath) {
-    return join(dirPath, 'turpan.yml');
 }
 export function createTimestampDir(basePath) {
     if (!existsSync(basePath)) {

@@ -54,6 +54,23 @@ function generateId(analyzerId: string, filePath: string, line: number): string 
   return `${analyzerId}-${base}-${line}`;
 }
 
+function collapseStringConcatenations(content: string): string {
+  let normalized = content;
+
+  // Repeatedly collapse simple quoted string concatenations on a single line:
+  // 'AK' + 'IA...' => 'AKIA...'
+  while (true) {
+    const next = normalized.replace(
+      /(['"])([^'"\\]*)\1\s*\+\s*(['"])([^'"\\]*)\3/g,
+      (_, quoteA: string, left: string, _quoteB: string, right: string) => `${quoteA}${left}${right}${quoteA}`,
+    );
+    if (next === normalized) break;
+    normalized = next;
+  }
+
+  return normalized;
+}
+
 function checkLineForSecrets(
   content: string,
   filePath: string,
@@ -62,11 +79,12 @@ function checkLineForSecrets(
   projectRoot: string
 ): DiffScopedFinding[] {
   const findings: DiffScopedFinding[] = [];
+  const normalizedContent = collapseStringConcatenations(content);
 
   // Check AWS keys
   let match: RegExpExecArray | null;
   const awsRe = new RegExp(PATTERNS.awsKey.source, 'g');
-  while ((match = awsRe.exec(content)) !== null) {
+  while ((match = awsRe.exec(normalizedContent)) !== null) {
     findings.push({
       id: generateId('hardcoded-secret', filePath, match.index),
       severity: 'critical',
@@ -90,7 +108,7 @@ function checkLineForSecrets(
 
   // Check generic secrets (password=, token=, etc.)
   const genericRe = new RegExp(PATTERNS.genericSecret.source, 'g');
-  while ((match = genericRe.exec(content)) !== null) {
+  while ((match = genericRe.exec(normalizedContent)) !== null) {
     findings.push({
       id: generateId('hardcoded-secret', filePath, match.index),
       severity: 'critical',
@@ -114,7 +132,7 @@ function checkLineForSecrets(
 
   // Check for long secret-like strings (heuristic)
   const longSecretRe = new RegExp(PATTERNS.longSecret.source, 'g');
-  while ((match = longSecretRe.exec(content)) !== null) {
+  while ((match = longSecretRe.exec(normalizedContent)) !== null) {
     // Skip if it looks like a hash or common non-secret value
     const val = match[0].slice(1, -1);
     if (/^[A-Fa-f0-9]{32,}$/.test(val)) continue; // Looks like a hash

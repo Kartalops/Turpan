@@ -55,7 +55,7 @@ function printProjectInfo(project: ProjectFingerprint): void {
   console.log(chalk.bold('📁 Project Detected'));
   console.log(chalk.dim('─'.repeat(40)));
 
-  const lines = formatProjectInfo(project).split('\n');
+  const lines = formatFingerprintSummary(project).split('\n');
   for (const line of lines) {
     console.log('  ' + line);
   }

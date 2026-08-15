@@ -90,7 +90,7 @@ export function createScenariosCommand(): Command {
     .option('--project <path>', 'Project path', '.')
     .option('--json', 'Output as JSON', false)
     .action(async (options: { project?: string; json?: boolean }) => {
-      const { resolveProjectPath, loadConfig } = await import('@turpan/shared');
+      const { resolveProjectPath } = await import('@turpan/shared');
       const { loadConfig: loadCoreConfig } = await import('@turpan/core');
       const projectPath = resolveProjectPath(options.project ?? '.');
 

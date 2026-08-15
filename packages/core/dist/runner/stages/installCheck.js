@@ -39,7 +39,7 @@ export async function runInstallCheck(ctx, options = {}) {
     // ── Case 2: node_modules missing — report requirement ───────────────────────
     if (!hasNodeModules && !options.installCommand) {
         const finding = createFinding({
-            title: 'Dependencies not installed — install required before review',
+            title: 'node_modules dependencies missing — build review requires install',
             explanation: `The node_modules directory is missing. Turpan cannot run build, test, lint, or typecheck ` +
                 `without first installing dependencies. Run your package manager install command before re-running ` +
                 `the review, or pass the --install flag to have Turpan install automatically (if configured).`,

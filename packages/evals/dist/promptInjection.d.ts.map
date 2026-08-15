@@ -1,0 +1,1 @@
+{"version":3,"file":"promptInjection.d.ts","sourceRoot":"","sources":["../src/promptInjection.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,4BAA4B;IAC3C,SAAS,EAAE,MAAM,CAAC;IAClB,QAAQ,EAAE,MAAM,EAAE,CAAC;CACpB;AAWD,wBAAgB,yBAAyB,CAAC,MAAM,EAAE,MAAM,EAAE,KAAK,SAAuB,GAAG,4BAA4B,CAapH"}

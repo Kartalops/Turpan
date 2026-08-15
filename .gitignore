@@ -1,0 +1,12 @@
+node_modules/
+**/node_modules/
+.turpan/
+**/.turpan/
+coverage/
+**/coverage/
+dist_test/
+**/dist_test/
+*.log
+.env
+.env.*
+.DS_Store

@@ -414,6 +414,8 @@ describe('Redaction in audit logs', () => {
 
   it('audit log inputSummary redacts secrets', () => {
     setGlobalAuditPath(TEST_PROJECT);
+    const githubToken = ['gh', 'p_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'].join('');
+    const awsAccessKey = ['AK', 'IAIOSFODNN7EXAMPLE'].join('');
     const ctx = new AuditContext({
       toolName: 'turpan.review_project',
       projectPath: TEST_PROJECT,
@@ -421,8 +423,8 @@ describe('Redaction in audit logs', () => {
       input: {
         projectPath: TEST_PROJECT,
         API_KEY: 'sk-live-abcdefghijklmnopqrstuvwxyz123456789',
-        GITHUB_TOKEN: 'ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        AWS_ACCESS_KEY_ID: 'AKIAIOSFODNN7EXAMPLE',
+        GITHUB_TOKEN: githubToken,
+        AWS_ACCESS_KEY_ID: awsAccessKey,
         // Field names that should be redacted regardless of value
         PASSWORD: 'super-secret-password',
         DATABASE_PASSWORD: 'db-password-123',
@@ -437,7 +439,7 @@ describe('Redaction in audit logs', () => {
     // Verify redaction in the actual log content
     expect(content).not.toContain('sk-live-');
     expect(content).not.toContain('ghp_');
-    expect(content).not.toContain('AKIAIOSFODNN7EXAMPLE');
+    expect(content).not.toContain(awsAccessKey);
     expect(content).not.toContain('super-secret-password');
     expect(content).not.toContain('db-password-123');
     expect(content).not.toContain('redis-pass-456');

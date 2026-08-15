@@ -1,0 +1,1 @@
+{"version":3,"file":"ApiAgent.d.ts","sourceRoot":"","sources":["../../src/runtime/ApiAgent.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAe,aAAa,EAAE,MAAM,YAAY,CAAC;AAE7D,qBAAa,QAAQ;IACnB,QAAQ,CAAC,WAAW,EAAE,MAAM,GAAG,aAAa;IAa5C,OAAO,CAAC,oBAAoB;IAuB5B,OAAO,CAAC,qBAAqB;IAoB7B,OAAO,CAAC,iBAAiB;CAS1B"}

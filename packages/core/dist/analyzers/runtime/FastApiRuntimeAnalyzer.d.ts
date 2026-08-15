@@ -23,6 +23,7 @@ export declare class FastApiRuntimeAnalyzer implements Analyzer {
     private httpGet;
     private analyzeFastApiStatic;
     private checkCors;
+    private checkUnauthenticatedSensitiveRoutes;
     private checkRateLimiting;
     private checkErrorHandling;
 }

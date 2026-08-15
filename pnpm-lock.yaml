@@ -35,9 +35,6 @@ importers:
       '@turpan/git-diff':
         specifier: workspace:*
         version: link:../../packages/git-diff
-      '@turpan/mcp-server':
-        specifier: workspace:*
-        version: link:../mcp-server
       '@turpan/report':
         specifier: workspace:*
         version: link:../../packages/report
@@ -156,9 +153,6 @@ importers:
         specifier: workspace:*
         version: link:../shared
     devDependencies:
-      '@turpan/ui-runner':
-        specifier: workspace:*
-        version: link:../ui-runner
       '@types/node':
         specifier: ^20.11.0
         version: 20.19.43
@@ -212,6 +206,15 @@ importers:
       vitest:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@20.19.43)
+
+  packages/evals:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.6(@types/node@20.19.43)(tsx@4.22.4)
 
   packages/fix-engine:
     dependencies:

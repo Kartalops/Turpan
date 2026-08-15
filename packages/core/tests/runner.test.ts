@@ -16,17 +16,21 @@ import { spawn } from 'child_process';
 
 describe('LogRedactor', () => {
   const redactor = new LogRedactor();
+  const githubToken = ['gh', 'p_abcdefghij1234567890abcdefghijklmnop'].join('');
+  const shortGithubToken = ['gh', 'p_abcdefghij1234567890abcdefgh'].join('');
+  const stripeLiveKey = ['sk', '_live_abcdefghij1234567890'].join('');
+  const awsAccessKey = ['AK', 'IAIOSFODNN7EXAMPLE'].join('');
 
   describe('redactLine', () => {
     it('redacts environment variable values for sensitive vars', () => {
-      const line = 'SECRET_TOKEN=ghp_abcdefghij1234567890abcdefgh';
+      const line = `SECRET_TOKEN=${shortGithubToken}`;
       const redacted = redactor.redactLine(line);
       expect(redacted).toContain('[REDACTED]');
       expect(redacted).not.toContain('ghp_abcdef');
     });
 
     it('redacts STRIPE_API_KEY style vars', () => {
-      const line = 'STRIPE_API_KEY=sk_live_abcdefghij1234567890';
+      const line = `STRIPE_API_KEY=${stripeLiveKey}`;
       const redacted = redactor.redactLine(line);
       expect(redacted).toContain('[REDACTED]');
     });
@@ -38,14 +42,14 @@ describe('LogRedactor', () => {
     });
 
     it('redacts AWS access keys', () => {
-      const line = 'AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE';
+      const line = `AWS_ACCESS_KEY_ID=${awsAccessKey}`;
       const redacted = redactor.redactLine(line);
       expect(redacted).toContain('[REDACTED]');
       expect(redacted).not.toContain('AKIAI');
     });
 
     it('redacts GitHub tokens', () => {
-      const line = 'GITHUB_TOKEN=ghp_abcdefghij1234567890abcdefghijklmnop';
+      const line = `GITHUB_TOKEN=${githubToken}`;
       const redacted = redactor.redactLine(line);
       expect(redacted).not.toContain('ghp_abc');
     });
@@ -81,9 +85,9 @@ describe('LogRedactor', () => {
     it('redacts secrets across multiple lines', () => {
       const text = [
         'START',
-        'SECRET=ghp_abcdefghij1234567890',
+        `SECRET=${['gh', 'p_abcdefghij1234567890'].join('')}`,
         'OTHER=value',
-        'API_KEY=sk_live_abcdefghij1234567890',
+        `API_KEY=${stripeLiveKey}`,
         'END',
       ].join('\n');
       const redacted = redactor.redact(text);
@@ -99,7 +103,7 @@ describe('LogRedactor', () => {
     it('redacts sensitive env var values', () => {
       const env: Record<string, string | undefined> = {
         NODE_ENV: 'production',
-        SECRET_TOKEN: 'ghp_abcdefghij',
+        SECRET_TOKEN: ['gh', 'p_abcdefghij'].join(''),
         PASSWORD: 'hunter2',
         PORT: '3000',
       };

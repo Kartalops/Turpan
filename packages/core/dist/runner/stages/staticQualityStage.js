@@ -44,7 +44,7 @@ export async function runStaticQualityStage(ctx, stageId = 'static-quality') {
     };
     // Determine which analyzer categories to run based on stageId
     const categoryMap = {
-        'static-quality': ['maintainability', 'dependency', 'architecture', 'agent-output'],
+        'static-quality': ['maintainability', 'dependency', 'architecture', 'agent-output', 'saas', 'auth', 'ux', 'routes'],
         'dead-code-basic': ['dead-code'],
         'security-basic': ['security'],
     };

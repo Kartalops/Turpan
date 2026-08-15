@@ -178,7 +178,7 @@ export class UiTestRunner {
             projectRoot: this.opts.projectRoot,
             appType,
             baseUrl: this.baseUrl,
-            knownRoutes: this.opts.fingerprint.routeHints.flatMap((h) => h.sampleRoutes ?? []),
+            knownRoutes: (this.opts.fingerprint.routeHints ?? []).flatMap((h) => h.sampleRoutes ?? []),
         });
         // Probe all routes to determine which ones load
         const probed = await probeRoutes(this.baseUrl, discovered, 8000);

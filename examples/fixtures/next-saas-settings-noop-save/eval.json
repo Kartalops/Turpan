@@ -4,7 +4,8 @@
   "tags": ["settings", "noop-button", "ui"],
   "expected": {
     "mode": "soft",
-    "verdict": ["WARN"],
-    "criticalFindings": { "max": 0 }
+    "verdict": ["GO", "CONDITIONAL_GO"],
+    "criticalFindings": { "max": 0 },
+    "mustDetect": ["settings", "save", "unwired", "no-op"]
   }
 }

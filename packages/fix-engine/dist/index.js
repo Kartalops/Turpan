@@ -37,4 +37,14 @@ export { verifyPatch, shouldRollback, } from './PatchVerifier.js';
 export { rollback, saveRollbackRecord, getCurrentCommitHash, getBackupDir, listBackups, parseBackupFilename, } from './RollbackManager.js';
 // ─── Report Writer ────────────────────────────────────────────────────────────
 export { writeFixReport, renderFixPlanReport, renderFixResultReport } from './reportWriter.js';
+// ─── Evidence-Driven Autofix ─────────────────────────────────────────────────
+export * from './autofixTypes.js';
+export { classifyFixEligibility } from './FixEligibility.js';
+export { checkPatchBudget, summarizeUnifiedDiff } from './PatchBudget.js';
+export { selectImpactedTests } from './TestSelector.js';
+export { assessRegressionTest } from './RegressionTestGuard.js';
+export { adversarialPatchReview } from './PatchReviewer.js';
+export { scorePatchExperiment, chooseSmallestProvenPatch } from './PatchScorer.js';
+export { GitWorktreeManager, runPatchExperiment, } from './WorktreeExperiment.js';
+export { buildPatchEvidenceReport } from './PatchEvidenceReport.js';
 //# sourceMappingURL=index.js.map

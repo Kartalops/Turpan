@@ -24,9 +24,6 @@ export function createEmptyScorecard() {
         project_readiness: undefined, // Placeholder for future scoring
     };
 }
-export function createEmptyFindings() {
-    return [];
-}
 export function finalizeContext(ctx, findings, scorecard) {
     return {
         config: ctx.config,

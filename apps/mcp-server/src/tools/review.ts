@@ -7,22 +7,16 @@
 
 import { join, resolve } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import chalk from 'chalk';
 
 import { runAnalysis as coreRunAnalysis, detectProject } from '@turpan/core';
+import type { Category, Finding as CoreFinding, Severity } from '@turpan/core';
 import { runAgentOutputAudit } from '@turpan/analyzers';
 import { runUiTest } from '@turpan/ui-runner';
-import {
-  buildFixPlan,
-  applyFixCandidates,
-  verifyPatch,
-  type FixMode,
-} from '@turpan/fix-engine';
-import { generateReports, deriveVerdict } from '@turpan/report';
-import type { TurpanAnalysisData } from '@turpan/report';
+import type { FixMode } from '@turpan/fix-engine';
+import { loadLatestRunArtifacts, summarizeFindingSeverities } from '@turpan/report';
 import type { Finding } from '@turpan/shared';
 
-import { validateProjectPath, validateTaskFilePath, validateRunId, getLatestRunPath, resolveOutputPath } from '../security/workspace.js';
+import { validateProjectPath, validateTaskFilePath, validateRunId, getLatestRunPath } from '../security/workspace.js';
 import { redactObject, formatSafeError } from '../security/redact.js';
 import type {
   ReviewProjectInput,
@@ -42,42 +36,25 @@ async function ensureRunDir(projectPath: string): Promise<string> {
   return createTimestampDir(baseRunPath);
 }
 
-function loadLatestRunArtifacts(projectPath: string): {
-  findings: Finding[];
-  scorecard: import('@turpan/shared').Scorecard;
-  runId: string;
-} {
-  const latest = getLatestRunPath(projectPath);
-  if (!latest) return { findings: [], scorecard: { overall: 0, categories: { correctness: 0, security: 0, performance: 0, maintainability: 0, codeCoverage: 0 }, findingsCount: 0, criticalIssues: 0 }, runId: 'unknown' };
+const CORE_CATEGORIES = new Set<Category>([
+  'project', 'build', 'test', 'lint', 'typecheck', 'security', 'ui', 'accessibility',
+  'performance', 'architecture', 'dead-code', 'dependency', 'agent-output',
+  'maintainability', 'runtime', 'api-design', 'error-boundary', 'config', 'unknown-project',
+]);
+const CORE_SEVERITIES = new Set<Severity>(['critical', 'high', 'medium', 'low', 'info']);
 
-  const findingsPath = join(latest, 'TURPAN_FINDINGS.json');
-  const scorecardPath = join(latest, 'TURPAN_SCORECARD.json');
-  const runId = latest.split('/').pop() ?? 'unknown';
-
-  let findings: Finding[] = [];
-  let scorecard: import('@turpan/shared').Scorecard = { overall: 0, categories: { correctness: 0, security: 0, performance: 0, maintainability: 0, codeCoverage: 0 }, findingsCount: 0, criticalIssues: 0 };
-
-  if (existsSync(findingsPath)) {
-    try { findings = JSON.parse(readFileSync(findingsPath, 'utf-8')).findings ?? []; } catch {}
-  }
-  if (existsSync(scorecardPath)) {
-    try { scorecard = JSON.parse(readFileSync(scorecardPath, 'utf-8')); } catch {}
-  }
-
-  return { findings, scorecard, runId };
+function isCoreFinding(finding: Finding): finding is CoreFinding {
+  return CORE_CATEGORIES.has(finding.category as Category) &&
+    CORE_SEVERITIES.has(finding.severity as Severity) &&
+    Array.isArray(finding.evidence) && finding.evidence.length > 0 &&
+    ['auto', 'manual', 'none'].includes(finding.fixable) &&
+    typeof finding.confidence === 'number' && Array.isArray(finding.tags);
 }
 
-function summarizeFindings(findings: Finding[]): string {
-  const critical = findings.filter(f => f.severity === 'critical').length;
-  const high = findings.filter(f => f.severity === 'high').length;
-  const medium = findings.filter(f => f.severity === 'medium').length;
-  const low = findings.filter(f => f.severity === 'low').length;
-  const parts: string[] = [];
-  if (critical > 0) parts.push(`${critical} critical`);
-  if (high > 0) parts.push(`${high} high`);
-  if (medium > 0) parts.push(`${medium} medium`);
-  if (low > 0) parts.push(`${low} low`);
-  return parts.length > 0 ? parts.join(', ') : 'clean';
+function deriveArtifactVerdict(findings: Finding[]): 'GO' | 'CONDITIONAL_GO' | 'NO_GO' {
+  if (findings.some(finding => finding.severity === 'critical')) return 'NO_GO';
+  if (findings.some(finding => finding.severity === 'high')) return 'CONDITIONAL_GO';
+  return 'GO';
 }
 
 // ─── Tool Implementations ────────────────────────────────────────────────────
@@ -107,7 +84,7 @@ export async function reviewProject(input: ReviewProjectInput, emitLog?: (msg: s
   try {
     // Run core analysis
     const timeoutMs = mode === 'deep' ? 300_000 : 120_000;
-    const coreRunPath = await coreRunAnalysis({
+    await coreRunAnalysis({
       projectPath: projectRoot,
       deepAnalysis: mode === 'deep',
       uiAnalysis: includeUi,
@@ -134,8 +111,8 @@ export async function reviewProject(input: ReviewProjectInput, emitLog?: (msg: s
 
     // Load results
     const { findings, scorecard } = loadLatestRunArtifacts(projectRoot);
-    const verdict = deriveVerdict(scorecard, findings);
-    const summary = summarizeFindings(findings);
+    const verdict = deriveArtifactVerdict(findings);
+    const summary = summarizeFindingSeverities(findings);
 
     return {
       runId,
@@ -184,7 +161,7 @@ export async function reviewDiff(input: ReviewDiffInput, emitLog?: (msg: string)
   return {
     runId,
     reportPath: join(runPath, 'TURPAN_ANALYSIS.md'),
-    findingsSummary: `${findings.length} findings (${summarizeFindings(findings)})`,
+    findingsSummary: `${findings.length} findings (${summarizeFindingSeverities(findings)})`,
   };
 }
 
@@ -210,6 +187,7 @@ export async function liveUiTest(input: LiveUiTestInput, emitLog?: (msg: string)
   const report = await runUiTest({
     projectRoot,
     runId,
+    fingerprint,
     url: input.url,
     headed: input.headed,
     mobileOnly: input.mobile,
@@ -305,17 +283,31 @@ export async function fixFindings(input: FixFindingsInput, emitLog?: (msg: strin
   }
 
   const runId = new Date().toISOString().replace(/[:.]/g, '-');
-  const { buildFixPlan: buildPlan, applyFixCandidates: applyFix } = await import('@turpan/fix-engine');
+  const { buildFixPlan: buildPlan, applyFixCandidates: applyFix, generatePatch, verifyPatch } = await import('@turpan/fix-engine');
+  const coreFindings = targetFindings.filter(isCoreFinding);
+  if (coreFindings.length === 0) {
+    return { patchPath: '', applied: 0, validationSummary: 'No evidence-backed findings eligible for fixing' };
+  }
 
-  const plan = buildPlan({ findings: targetFindings, projectRoot, fixMode });
-  const result = await applyFix({ plan, projectRoot, fixMode });
+  const plan = buildPlan({ findings: coreFindings, projectRoot, fixMode });
+  const patch = generatePatch(plan.applied);
+  const result = await applyFix(plan.applied, {
+    projectRoot,
+    runId: plan.runId,
+    useWorktree: fixMode === 'apply',
+    dryRun: fixMode === 'patch-only',
+    backup: fixMode === 'apply',
+  });
+  const validation = result.success && fixMode === 'apply'
+    ? await verifyPatch(plan.applied, { projectRoot, checks: plan.requiredChecks, timeoutMs: 120_000 })
+    : { allPassed: result.success, results: [], totalDurationMs: 0 };
 
   return {
-    patchPath: result.patchResult.patchContent ? join(projectRoot, '.turpan', 'runs', runId, 'TURPAN_PATCH.diff') : '',
-    applied: result.applied.length,
-    validationSummary: result.validation.allPassed
-      ? `All ${result.validation.results.length} validation checks passed`
-      : `${result.validation.results.filter(r => !r.passed).length}/${result.validation.results.length} checks failed`,
+    patchPath: patch.patchContent ? join(projectRoot, '.turpan', 'runs', runId, 'TURPAN_PATCH.diff') : '',
+    applied: result.modified.length,
+    validationSummary: validation.allPassed
+      ? `All ${validation.results.length} validation checks passed`
+      : `${validation.results.filter(check => !check.passed).length}/${validation.results.length} checks failed`,
   };
 }
 
