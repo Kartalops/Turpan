@@ -1,47 +1,57 @@
-# Turpan
+# Turpan 🐪
 
-Turpan is an evidence-driven autonomous software review agent for TypeScript/JavaScript and Python projects.
+Turpan is an evidence-driven software review agent for TypeScript/JavaScript and Python repositories.
 
-Project status: **V1 NOT YET CERTIFIED**.
+> Models reason. Tools prove.
+
+**Status**
+
+`V1 NOT YET CERTIFIED`
+
+Turpan's engineering gates are green. V1 product certification is still blocked by limited benchmark scale, confidence calibration depth, and broader real-world proof.
 
 ## Why Turpan
 
-Turpan is built around one rule:
+Turpan does not stop at "ask a model to review code".
+
+It combines deterministic analyzers, structured model reasoning, runtime evidence, browser checks, and isolated patch experiments so findings can be tied back to proof instead of prose.
+
+## Review Loop
 
 ```text
-Models reason. Tools prove.
+repository
+-> fingerprint
+-> analyze
+-> reason
+-> reproduce
+-> verify
+-> optionally patch in isolation
+-> report
 ```
 
-It does not simply ask an LLM to review a repository. The review loop combines deterministic analysis, model reasoning contracts, runtime/browser evidence, adversarial verification, and isolated patch experiments. The technical release gates pass; V1 quality certification remains blocked by insufficient benchmark and calibration samples.
+## What Is Verified Today
 
-## What It Does Today
+| Area | Current state |
+| --- | --- |
+| Static review | Project fingerprinting, deterministic analyzers, diff-scoped review |
+| Runtime/browser | Verified Playwright-backed local smoke path |
+| Intelligence | Provider-neutral model contracts, routing, specialists, verification primitives |
+| Fixes | Isolated worktree patch experiments with validated local smoke path |
+| Platform | CLI adapter, MCP adapter, dependency/SBOM review, eval package |
 
-Current validated paths:
+## Quick Start
 
-- Project fingerprinting and deterministic analyzers.
-- Static and diff-scoped review primitives.
-- Dependency/SBOM review package.
-- MCP server adapter with workspace/security controls.
-- Playwright-based UI runner with a verified local Chromium smoke path.
-- Provider-neutral model intelligence contracts, router, specialists, verifier, and consensus primitives.
-- Isolated patch experiment framework with a verified temporary Git worktree smoke path.
-- V1 eval package with golden corpus definitions, metrics, calibration buckets, strategy benchmarking, prompt-injection defense, and release gates.
-
-Important limitation: live provider benchmarks, precision/calibration, and representative patch-rate metrics are not yet certified.
-
-## Core Commands
-
-Use the repository package manager through Corepack:
+Install with the repository's canonical package manager:
 
 ```bash
 corepack pnpm install --frozen-lockfile
-corepack pnpm build
-corepack pnpm test
+corepack pnpm -r run build
 corepack pnpm -r run lint
+corepack pnpm -r run test
 corepack pnpm eval -- --hard-fail
 ```
 
-Built CLI smoke command:
+CLI examples:
 
 ```bash
 node apps/cli/dist/index.js --help
@@ -50,110 +60,74 @@ node apps/cli/dist/index.js review-diff . --base main --target HEAD
 node apps/cli/dist/index.js fix .
 ```
 
-Built MCP smoke command:
+MCP smoke:
 
 ```bash
 node apps/mcp-server/dist/index.js --help
 ```
 
-## Review Modes
+## Verified Local Gates
 
-The CLI exposes review flags for quick/deep review, UI/runtime checks, dependency audit, plugins, and diff review. Treat mode behavior as implementation-defined until V1 certification passes.
+| Gate | Result |
+| --- | --- |
+| Install | PASS |
+| Build | PASS |
+| Lint / typecheck | PASS |
+| Tests | PASS |
+| Agent eval | PASS |
+| CLI smoke | PASS |
+| MCP smoke | PASS |
 
-## Multi-Model Support
+Latest local test/eval snapshot:
 
-Turpan has provider-neutral model contracts, model descriptors, routing, specialist review roles, structured output validation, adversarial verification, and evidence-weighted consensus primitives.
+- `corepack pnpm -r run test`: `906 passed`, `0 failed`, `1 skipped`
+- `corepack pnpm eval -- --quiet --hard-fail`: `22/22 PASS`
 
-Provider-specific production adapters and real provider benchmark results are not yet certified. Source-code transmission to remote providers must remain explicit policy. Local/offline mode is part of the privacy model.
+See [docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md](docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md).
 
-## Runtime & Browser Review
+## Multi-Model and Privacy
 
-Turpan includes:
+Turpan includes provider-neutral model contracts, routing, specialist roles, structured outputs, adversarial verification, and evidence-weighted consensus primitives.
 
-- boot discovery contracts
-- runtime supervisor contracts
-- health detection
-- semantic browser-agent contracts
-- safe UI action classification
-- API and CLI review workers
+Remote provider use is policy-bound. Local/offline mode and secret redaction are part of the current safety model.
+
+## Runtime, Browser, and Fixes
+
+Turpan already contains:
+
+- boot and runtime supervision primitives
+- Playwright-based UI execution
 - runtime-to-source correlation
+- isolated patch experiments in temporary git worktrees
 
-The current V1 gate still requires real end-to-end browser/runtime eval proof before release certification.
-
-## Verified Fixes
-
-The fix engine supports isolated patch experiment primitives:
-
-```text
-verified finding
--> fix eligibility
--> patch candidate
--> patch budget
--> temporary worktree
--> validation
--> reproduction flip
--> adversarial patch review
--> patch evidence report
-```
-
-The active working tree is read-only by default. Autonomous patch application to the user's working tree is not silently enabled.
-
-## Evidence Model
-
-Turpan distinguishes:
-
-```text
-FindingCandidate -> Evidence -> VerificationResult -> Finding
-```
-
-Findings must be backed by evidence. Confidence is expected to be calibrated through eval buckets, not arbitrary labels.
+The active working tree remains read-only by default.
 
 ## Supported Languages
 
-Eval-backed in the current corpus:
+Eval-backed today:
 
-- TypeScript/JavaScript
+- TypeScript / JavaScript
 - Python
 
-Capability-described but not V1-claimed:
+Capability-described but not V1-certified:
 
 - Go
 - Rust
 - Java
 - C#
 
-Do not treat syntax detection as full language support.
-
 ## Security
 
-Current security model:
+Current safeguards include:
 
-- read-only default
 - command safety policy
-- workspace-scoped MCP controls
+- workspace-scoped MCP boundaries
 - secret redaction
-- provider privacy policy
-- prompt-injection defense for repository text
-- UI action safety policy
-- isolated worktree patch experiments
+- prompt-injection defense for repository content
+- safe UI action policy
+- isolated fix validation
 
 See [docs/V1_SECURITY_MODEL.md](docs/V1_SECURITY_MODEL.md).
-
-## Benchmarks / Evaluation
-
-Latest local certification attempt:
-
-- Install: passed with `corepack pnpm install --frozen-lockfile`.
-- Build: passed with `corepack pnpm -r run build`.
-- Lint/typecheck: passed with `corepack pnpm -r run lint`.
-- Tests: passed (906 active tests) with `corepack pnpm -r run test`.
-- Agent eval: passed, 22 fixtures run, 22 pass.
-- CLI smoke: passed.
-- MCP smoke: passed.
-
-V1 gate decision: **V1_RC_NO_GO**.
-
-See [docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md](docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md).
 
 ## Architecture
 
@@ -169,36 +143,10 @@ packages/report
 
 packages/fix-engine -> isolated patch experiments
 packages/evals      -> corpus, metrics, gates
-packages/ui-runner  -> browser/runtime support
+packages/ui-runner  -> runtime and browser support
 ```
 
-See [docs/V1_ARCHITECTURE.md](docs/V1_ARCHITECTURE.md).
-
-## MCP / CI
-
-- MCP: [docs/MCP_SERVER.md](docs/MCP_SERVER.md)
-- GitHub Actions: [docs/GITHUB_ACTIONS.md](docs/GITHUB_ACTIONS.md)
-
-## Known Limitations
-
-- Technical release gates pass, but V1 quality metrics lack representative samples.
-- Multi-model provider adapters are not certified with live credentials.
-- Browser/runtime review is not certified end-to-end by eval.
-- Patch success/regression rates are not yet meaningful over a representative corpus.
-- Go/Rust/Java/C# are not V1-supported languages.
-- Some docs outside the V1 canonical set are historical phase reports.
-
-## Development
-
-```bash
-corepack pnpm install --frozen-lockfile
-corepack pnpm build
-corepack pnpm test
-corepack pnpm -r run lint
-corepack pnpm eval -- --hard-fail
-```
-
-## Canonical Documentation
+Canonical V1 documents:
 
 - [docs/V1_ARCHITECTURE.md](docs/V1_ARCHITECTURE.md)
 - [docs/V1_AGENT_PROTOCOL.md](docs/V1_AGENT_PROTOCOL.md)
@@ -206,6 +154,25 @@ corepack pnpm eval -- --hard-fail
 - [docs/V1_EVAL_STANDARD.md](docs/V1_EVAL_STANDARD.md)
 - [docs/V1_PROVIDER_MODEL.md](docs/V1_PROVIDER_MODEL.md)
 - [docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md](docs/V1_RELEASE_CANDIDATE_CERTIFICATION.md)
+
+Historical phase and release reports were moved under [docs/archive/README.md](docs/archive/README.md).
+
+## Limitations
+
+- V1 product certification is still `NO_GO`.
+- Quality metrics need broader benchmark coverage before release certification.
+- Live provider benchmark evidence is still limited.
+- Browser/runtime and patch-rate claims are not yet broad enough for final V1 sign-off.
+
+## Development
+
+```bash
+corepack pnpm install --frozen-lockfile
+corepack pnpm -r run build
+corepack pnpm -r run lint
+corepack pnpm -r run test
+corepack pnpm eval -- --hard-fail
+```
 
 ## License
 
